@@ -15,7 +15,6 @@ urlpatterns = [
     path('profile/', profile_view, name='profile'),
     path('admin/', admin.site.urls),
     path('notifications/', include('apps.notifications.urls')),
-    path('announcements/', include('apps.notifications.urls')),
     path('trips/', include('apps.trips.urls')),
     path('ads/', include('apps.ads.urls')),
     path('directory/', include('apps.directory.urls')),
