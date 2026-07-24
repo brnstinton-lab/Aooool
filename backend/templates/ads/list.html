@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Объявления | Свой посёлок. Свои люди.{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header Card -->
+    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-200/80 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <span class="material-symbols-outlined text-2xl">shopping_bag</span>
+        </div>
+        <div>
+            <h1 class="text-lg font-bold text-blue-950">🛒 Частные объявления</h1>
+            <p class="text-xs text-blue-800 leading-snug">Покупка, продажа товаров, техники, сельхозпродукции и скота.</p>
+        </div>
+    </div>
+
+    <!-- Category Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <span class="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shrink-0">Все (12)</span>
+        <span class="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0">Транспорт</span>
+        <span class="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0">Техника</span>
+        <span class="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0">Животные</span>
+    </div>
+
+    <!-- Ad List -->
+    <div class="grid grid-cols-1 gap-3">
+        <!-- Ad 1 -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between gap-3">
+            <div class="space-y-1">
+                <span class="text-[10px] uppercase tracking-wider font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Транспорт</span>
+                <h3 class="font-bold text-slate-900 text-sm">Горный велосипед Forward</h3>
+                <p class="text-xs text-slate-500">Кабанбай • В отличном состоянии, новые шины.</p>
+                <div class="text-base font-extrabold text-slate-900 pt-0.5">25 000 ₸</div>
+            </div>
+            <a href="tel:+77009998877" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-2xl shrink-0 transition active:scale-95 shadow-xs">
+                <span class="material-symbols-outlined text-xl">call</span>
+            </a>
+        </div>
+
+        <!-- Ad 2 -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between gap-3">
+            <div class="space-y-1">
+                <span class="text-[10px] uppercase tracking-wider font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Мебель</span>
+                <h3 class="font-bold text-slate-900 text-sm">Кухонный стол из массива</h3>
+                <p class="text-xs text-slate-500">Коктума • Бесплатно в хорошие руки при самовывозе.</p>
+                <div class="text-base font-extrabold text-emerald-600 pt-0.5">Бесплатно</div>
+            </div>
+            <a href="tel:+77009998878" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-2xl shrink-0 transition active:scale-95 shadow-xs">
+                <span class="material-symbols-outlined text-xl">call</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Поездки | Свой посёлок. Свои люди.{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header Card -->
+    <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-200/80 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <span class="material-symbols-outlined text-2xl">directions_car</span>
+        </div>
+        <div>
+            <h1 class="text-lg font-bold text-emerald-950">🚗 Поездки и попутчики</h1>
+            <p class="text-xs text-emerald-800 leading-snug">Поиск свободных мест в автомобиль и вызов такси из села.</p>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <span class="bg-emerald-700 text-white px-3 py-1.5 rounded-full text-xs font-bold shrink-0">Все рейсы</span>
+        <span class="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0">Талдыкорган</span>
+        <span class="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0">Алматы</span>
+        <span class="bg-white text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0">Уштобе</span>
+    </div>
+
+    <!-- Trips List -->
+    <div class="space-y-3">
+        <!-- Trip Card 1 -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-slate-900 text-base">Кабанбай → Талдыкорган</span>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-0.5">Сегодня, 30 июля • 16:00</div>
+                </div>
+                <span class="text-sm font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl">2 000 ₸</span>
+            </div>
+            
+            <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-slate-400">airline_seat_recline_normal</span>
+                    <span class="font-bold text-emerald-700">2 свободных места</span>
+                </div>
+                <a href="tel:+77001234567" class="bg-emerald-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 hover:bg-emerald-700 active:scale-95 transition">
+                    <span class="material-symbols-outlined text-sm">call</span>
+                    Позвонить
+                </a>
+            </div>
+        </div>
+
+        <!-- Trip Card 2 -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-slate-900 text-base">Коктума → Алматы</span>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-0.5">Завтра, 31 июля • 08:00</div>
+                </div>
+                <span class="text-sm font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl">5 000 ₸</span>
+            </div>
+            
+            <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">
+                <div class="flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-slate-400">airline_seat_recline_normal</span>
+                    <span class="font-bold text-amber-600">Осталось 1 место</span>
+                </div>
+                <a href="tel:+77001234568" class="bg-emerald-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 hover:bg-emerald-700 active:scale-95 transition">
+                    <span class="material-symbols-outlined text-sm">call</span>
+                    Позвонить
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

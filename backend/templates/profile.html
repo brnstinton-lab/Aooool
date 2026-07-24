@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+    <!-- User Header Card -->
+    <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-2xl shadow-sm shrink-0">
+            <span class="material-symbols-outlined text-3xl">person</span>
+        </div>
+        <div class="space-y-1">
+            <h1 class="text-lg font-extrabold text-slate-900">Гость AUL</h1>
+            <p class="text-xs text-slate-500">Житель села Кабанбай</p>
+            <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Активный профиль
+            </span>
+        </div>
+    </div>
+
+    <!-- Under Construction Banner -->
+    <div class="bg-amber-50/90 rounded-3xl p-6 border border-amber-200/80 text-center space-y-3 shadow-xs">
+        <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mx-auto shadow-xs">
+            <span class="material-symbols-outlined text-2xl">engineering</span>
+        </div>
+        <div class="space-y-1">
+            <h2 class="text-base font-bold text-amber-950">Раздел в разработке</h2>
+            <p class="text-xs text-amber-800 leading-relaxed max-w-sm mx-auto">
+                Здесь будет расположен ваш личный кабинет: сохраненные объявления, история поездок, настройки оповещений и выбор вашего села.
+            </p>
+        </div>
+    </div>
+
+    <!-- Mock Navigation Options -->
+    <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs divide-y divide-slate-100 overflow-hidden">
+        <div class="p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer">
+            <div class="flex items-center gap-3 text-slate-800 text-sm font-medium">
+                <span class="material-symbols-outlined text-slate-400">location_on</span>
+                <span>Выбор села / населенного пункта</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Кабанбай</span>
+        </div>
+
+        <div class="p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer">
+            <div class="flex items-center gap-3 text-slate-800 text-sm font-medium">
+                <span class="material-symbols-outlined text-slate-400">history</span>
+                <span>Мои объявления и поездки</span>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+        </div>
+
+        <div class="p-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer">
+            <div class="flex items-center gap-3 text-slate-800 text-sm font-medium">
+                <span class="material-symbols-outlined text-slate-400">notifications</span>
+                <span>Настройки Push-уведомлений</span>
+            </div>
+            <span class="material-symbols-outlined text-slate-400 text-lg">chevron_right</span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Официальные объявления | Свой посёлок. Свои люди.{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header Card -->
+    <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200/80 flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <span class="material-symbols-outlined text-2xl">campaign</span>
+        </div>
+        <div>
+            <h1 class="text-lg font-bold text-amber-950">📢 Официальные объявления</h1>
+            <p class="text-xs text-amber-800 leading-snug">Важные оповещения об отключениях воды, света, ремонте дорог и событиях акимата.</p>
+        </div>
+    </div>
+
+    <!-- Filter Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <a href="{% url 'notifications:list' %}" class="{% if not selected_category %}bg-amber-600 text-white{% else %}bg-white text-slate-700 border border-slate-200 hover:bg-slate-50{% endif %} px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition">
+            Все ({% if announcements %}{{ announcements|length }}{% else %}0{% endif %})
+        </a>
+        {% for cat_val, cat_name in categories %}
+            <a href="?category={{ cat_val }}" class="{% if selected_category == cat_val %}bg-amber-600 text-white font-bold{% else %}bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-medium{% endif %} px-3 py-1.5 rounded-full text-xs shrink-0 transition">
+                {{ cat_name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Alert List -->
+    <div class="space-y-3">
+        {% for item in announcements %}
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-2 relative">
+                {% if item.is_pinned %}
+                    <span class="absolute top-3 right-3 text-amber-500 font-bold text-xs flex items-center gap-0.5" title="Закреплено">
+                        <span class="material-symbols-outlined text-base">push_pin</span>
+                    </span>
+                {% endif %}
+                
+                <div class="flex items-start justify-between gap-2 pr-6">
+                    <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg text-xs font-bold">
+                        {% if item.category == 'ELECTRICITY' %}
+                            <span class="material-symbols-outlined text-sm">bolt</span>
+                        {% elif item.category == 'WATER' %}
+                            <span class="material-symbols-outlined text-sm">water_drop</span>
+                        {% elif item.category == 'ROADS' %}
+                            <span class="material-symbols-outlined text-sm">construction</span>
+                        {% elif item.category == 'EMERGENCY' %}
+                            <span class="material-symbols-outlined text-sm">warning</span>
+                        {% else %}
+                            <span class="material-symbols-outlined text-sm">campaign</span>
+                        {% endif %}
+                        {{ item.get_category_display }}
+                    </span>
+                    <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"d E Y, H:i" }}</span>
+                </div>
+
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                    {% if item.is_important %}
+                        <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">Важное</span>
+                    {% endif %}
+                    {{ item.title }}
+                </h3>
+
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    {{ item.description }}
+                </p>
+
+                {% if item.image %}
+                    <div class="pt-1">
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="rounded-xl max-h-48 w-full object-cover border border-slate-100" />
+                    </div>
+                {% endif %}
+
+                <div class="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
+                    <span>📍 {{ item.village }}</span>
+                    {% if item.expire_date %}
+                        <span class="text-slate-400 text-[11px]">Действует до: {{ item.expire_date|date:"d E" }}</span>
+                    {% else %}
+                        <span class="text-amber-700 font-semibold">Официально</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="bg-white rounded-2xl p-8 text-center text-slate-500 space-y-2 border border-slate-200">
+                <span class="material-symbols-outlined text-4xl text-slate-300">notifications_off</span>
+                <p class="text-sm font-medium">Нет активных объявлений</p>
+                <p class="text-xs text-slate-400">В выбранной категории сейчас нет записей.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

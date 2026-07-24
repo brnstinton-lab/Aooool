@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск «{{ query }}» — AUL{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+    <!-- Search Form Input -->
+    <form action="/search/" method="GET" class="bg-white rounded-full px-4 py-2.5 shadow-xs border border-slate-200/90 flex items-center gap-3">
+        <span class="material-symbols-outlined text-emerald-600 text-2xl">search</span>
+        <input type="text" name="q" value="{{ query }}" placeholder="Поиск по AUL (поездки, товары, службы)..." class="w-full bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400 font-medium" autofocus />
+        <button type="submit" class="bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full hover:bg-emerald-700 transition active:scale-95 shrink-0">
+            Искать
+        </button>
+    </form>
+
+    <!-- Search Status / Query Heading -->
+    {% if query %}
+        <div class="flex items-center justify-between px-1">
+            <h1 class="text-sm font-bold text-slate-700">
+                Результаты по запросу «<span class="text-emerald-700">{{ query }}</span>»:
+            </h1>
+            <span class="text-xs font-semibold text-slate-500 bg-slate-200/80 px-2.5 py-0.5 rounded-full">
+                Найдено: {{ total_count }}
+            </span>
+        </div>
+    {% else %}
+        <div class="bg-white rounded-2xl p-6 text-center text-slate-500 space-y-2 border border-slate-200">
+            <span class="material-symbols-outlined text-4xl text-slate-300">search_check</span>
+            <p class="text-sm font-medium">Введите ключевое слово в строку поиска выше.</p>
+            <p class="text-xs text-slate-400">Ищет одновременно по всем объявлениям, поездкам, справочнику и оповещениям.</p>
+        </div>
+    {% endif %}
+
+    {% if query and total_count == 0 %}
+        <!-- Empty Results Message -->
+        <div class="bg-white rounded-2xl p-8 text-center text-slate-500 space-y-2 border border-slate-200/90">
+            <span class="material-symbols-outlined text-4xl text-slate-300">find_in_page</span>
+            <p class="text-sm font-bold text-slate-700">Ничего не найдено</p>
+            <p class="text-xs text-slate-500">Попробуйте изменить запрос или поискать другое слово.</p>
+        </div>
+    {% endif %}
+
+    {% if query %}
+        <!-- 1. Оповещения -->
+        {% if notifications %}
+            <div class="space-y-2 pt-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5 px-1">
+                    <span class="material-symbols-outlined text-base">bolt</span>
+                    Оповещения ({{ notifications|length }})
+                </h2>
+                <div class="space-y-2">
+                    {% for item in notifications %}
+                        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[11px] font-bold">{{ item.category }}</span>
+                                <span class="text-[11px] text-slate-400">{{ item.date }}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-900 text-sm">{{ item.title }}</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">{{ item.text }}</p>
+                            <div class="text-[11px] text-slate-500 pt-1">📍 {{ item.location }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- 2. Поездки -->
+        {% if trips %}
+            <div class="space-y-2 pt-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5 px-1">
+                    <span class="material-symbols-outlined text-base">directions_car</span>
+                    Поездки ({{ trips|length }})
+                </h2>
+                <div class="space-y-2">
+                    {% for item in trips %}
+                        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
+                            <div class="space-y-1">
+                                <h3 class="font-bold text-slate-900 text-sm">{{ item.title }}</h3>
+                                <p class="text-xs text-slate-600">{{ item.text }}</p>
+                                <div class="text-[11px] font-semibold text-emerald-700">{{ item.date }}</div>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <div class="text-sm font-extrabold text-slate-900 mb-1.5">{{ item.price }}</div>
+                                <a href="tel:{{ item.phone }}" class="bg-emerald-600 text-white p-2 rounded-xl text-xs font-bold inline-flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-base">call</span>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- 3. Объявления -->
+        {% if ads %}
+            <div class="space-y-2 pt-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-blue-800 flex items-center gap-1.5 px-1">
+                    <span class="material-symbols-outlined text-base">shopping_bag</span>
+                    Объявления ({{ ads|length }})
+                </h2>
+                <div class="space-y-2">
+                    {% for item in ads %}
+                        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
+                            <div class="space-y-1">
+                                <span class="bg-blue-50 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">{{ item.category }}</span>
+                                <h3 class="font-bold text-slate-900 text-sm pt-0.5">{{ item.title }}</h3>
+                                <p class="text-xs text-slate-600">{{ item.text }}</p>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <div class="text-sm font-extrabold text-slate-900 mb-1.5">{{ item.price }}</div>
+                                <a href="tel:{{ item.phone }}" class="bg-blue-600 text-white p-2 rounded-xl text-xs font-bold inline-flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-base">call</span>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- 4. Справочник -->
+        {% if directory %}
+            <div class="space-y-2 pt-2">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-purple-800 flex items-center gap-1.5 px-1">
+                    <span class="material-symbols-outlined text-base">import_contacts</span>
+                    Справочник ({{ directory|length }})
+                </h2>
+                <div class="space-y-2">
+                    {% for item in directory %}
+                        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
+                            <div>
+                                <span class="bg-purple-50 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded">{{ item.category }}</span>
+                                <h3 class="font-bold text-slate-900 text-sm pt-0.5">{{ item.title }}</h3>
+                                <p class="text-xs text-slate-500">{{ item.text }}</p>
+                            </div>
+                            <a href="tel:{{ item.phone }}" class="w-9 h-9 rounded-full bg-purple-50 text-purple-700 flex items-center justify-center hover:bg-purple-100 transition shrink-0">
+                                <span class="material-symbols-outlined text-lg">call</span>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+    {% endif %}
+
+</div>
+{% endblock %}

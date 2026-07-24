@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Лента аула | Свой посёлок. Свои люди.{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+    <!-- Header Card -->
+    <div class="bg-gradient-to-r from-emerald-800 to-teal-800 rounded-3xl p-5 text-white shadow-md flex items-center justify-between">
+        <div class="space-y-1">
+            <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-200 bg-white/10 px-2.5 py-0.5 rounded-full inline-block">
+                Все события села
+            </span>
+            <h1 class="text-xl font-black text-white">Лента аула</h1>
+            <p class="text-xs text-emerald-100/90 leading-snug">Единая хроникологическая лента поездок, объявлений, аварийных отключений и служб.</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md text-emerald-100 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-2xl">rss_feed</span>
+        </div>
+    </div>
+
+    <!-- Filter Chips for Feed (Optional interactive filter) -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <span class="bg-emerald-700 text-white px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 shadow-xs">Все события ({{ events|length }})</span>
+        <a href="/notifications/" class="bg-white hover:bg-amber-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 flex items-center gap-1 transition">
+            <span class="material-symbols-outlined text-sm text-amber-500">bolt</span>
+            Оповещения
+        </a>
+        <a href="/trips/" class="bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 flex items-center gap-1 transition">
+            <span class="material-symbols-outlined text-sm text-emerald-600">directions_car</span>
+            Поездки
+        </a>
+        <a href="/ads/" class="bg-white hover:bg-blue-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 flex items-center gap-1 transition">
+            <span class="material-symbols-outlined text-sm text-blue-600">shopping_bag</span>
+            Объявления
+        </a>
+        <a href="/directory/" class="bg-white hover:bg-purple-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 flex items-center gap-1 transition">
+            <span class="material-symbols-outlined text-sm text-purple-600">import_contacts</span>
+            Справочник
+        </a>
+    </div>
+
+    <!-- Full Chronological Event List -->
+    <div class="space-y-2.5">
+        {% for event in events %}
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:shadow-md transition flex items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-11 h-11 rounded-2xl {{ event.icon_style }} flex items-center justify-center shrink-0 mt-0.5">
+                        <span class="material-symbols-outlined text-2xl">{{ event.icon }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-2">
+                            <a href="{{ event.url }}" class="font-bold text-slate-900 text-sm hover:text-emerald-700 transition">{{ event.title }}</a>
+                            <span class="text-[10px] px-2 py-0.5 rounded-md font-bold {{ event.badge_style }}">{{ event.badge }}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">{{ event.text }}</p>
+                        <div class="text-[11px] text-slate-400 font-medium pt-0.5 flex items-center gap-2">
+                            <span>{{ event.time_str }}</span>
+                            <span>•</span>
+                            <span>{{ event.meta }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if event.phone %}
+                    <a href="tel:{{ event.phone }}" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 flex items-center justify-center shrink-0 transition active:scale-90" title="Позвонить">
+                        <span class="material-symbols-outlined text-xl">call</span>
+                    </a>
+                {% else %}
+                    <a href="{{ event.url }}" class="w-10 h-10 rounded-full bg-slate-50 text-slate-400 hover:text-slate-700 flex items-center justify-center shrink-0 transition" title="Открыть раздел">
+                        <span class="material-symbols-outlined text-xl">chevron_right</span>
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="bg-white rounded-2xl p-8 text-center text-slate-500 border border-slate-200">
+                <p class="text-sm font-medium">Лента пока пуста.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{
+  "name": "AUL",
+  "description": "AUL Web Application",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

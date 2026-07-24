@@ -1,0 +1,10 @@
+/* AUL Custom Styles for Django Templates + Alpine.js */
+
+/* Плавные переходы для Alpine.js x-transition */
+[x-cloak] {
+    display: none !important;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
