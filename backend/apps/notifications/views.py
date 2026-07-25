@@ -1,13 +1,18 @@
 from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Q
 from .models import Announcement
 
 
 def notification_list(request):
-    """Отображение списка всех активных официальных объявлений"""
+    """Отображение списка всех активных и непросроченных официальных объявлений"""
     selected_category = request.GET.get('category', '').strip()
     
+    now = timezone.now()
     announcements = Announcement.objects.filter(
         status=Announcement.Status.ACTIVE
+    ).filter(
+        Q(expire_date__isnull=True) | Q(expire_date__gt=now)
     )
     
     if selected_category:

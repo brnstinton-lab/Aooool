@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.db.models import Q
+from django.utils import timezone
+from django.utils.formats import date_format
 from apps.notifications.models import Announcement
 
 # Демо-данные для поиска и ленты (до полного подключения всех Django-моделей БД)
@@ -35,7 +37,12 @@ def get_aggregated_feed():
     feed = []
 
     # 1. Загрузка реальных официальных объявлений из БД
-    db_announcements = Announcement.objects.filter(status=Announcement.Status.ACTIVE).order_by('-publish_date')
+    now = timezone.now()
+    db_announcements = Announcement.objects.filter(
+        status=Announcement.Status.ACTIVE
+    ).filter(
+        Q(expire_date__isnull=True) | Q(expire_date__gt=now)
+    ).order_by('-publish_date')
     if db_announcements.exists():
         for item in db_announcements:
             category_icon = "bolt"
@@ -48,6 +55,9 @@ def get_aggregated_feed():
             elif item.category in ['IMPORTANT', 'EVENT']:
                 category_icon = "campaign"
 
+            local_pub_date = timezone.localtime(item.publish_date) if item.publish_date else None
+            time_str = date_format(local_pub_date, "j E, H:i") if local_pub_date else "Сегодня"
+
             feed.append({
                 "type": "notification",
                 "type_label": "Объявление",
@@ -58,10 +68,10 @@ def get_aggregated_feed():
                 "icon": category_icon,
                 "icon_style": "bg-amber-100 text-amber-800",
                 "meta": f"📍 {item.village}",
-                "time_str": item.publish_date.strftime("%d %b, %H:%m") if item.publish_date else "Сегодня",
+                "time_str": time_str,
                 "timestamp": int(item.publish_date.timestamp()) if item.publish_date else 0,
                 "phone": None,
-                "url": "/announcements/"
+                "url": "/notifications/"
             })
     else:
         # Резервные демо-данные при пустой базе
@@ -79,7 +89,7 @@ def get_aggregated_feed():
                 "time_str": item["date"],
                 "timestamp": item.get("timestamp", 0),
                 "phone": None,
-                "url": "/announcements/"
+                "url": "/notifications/"
             })
 
     for item in MOCK_TRIPS:
@@ -144,8 +154,11 @@ def home_view(request):
     recent_events = all_events[:5]
     
     # Последние 3 активных объявления
+    now = timezone.now()
     recent_announcements = Announcement.objects.filter(
         status=Announcement.Status.ACTIVE
+    ).filter(
+        Q(expire_date__isnull=True) | Q(expire_date__gt=now)
     ).order_by('-is_pinned', '-publish_date')[:3]
 
     return render(request, 'index.html', {
@@ -173,19 +186,24 @@ def search_view(request):
         q_lower = query.lower()
         
         # Поиск по базе данных объявлений
+        now = timezone.now()
         db_announcements = Announcement.objects.filter(
             status=Announcement.Status.ACTIVE
+        ).filter(
+            Q(expire_date__isnull=True) | Q(expire_date__gt=now)
         ).filter(
             Q(title__icontains=query) | Q(description__icontains=query)
         )
         
         for item in db_announcements:
+            local_pub_date = timezone.localtime(item.publish_date) if item.publish_date else None
+            date_str = date_format(local_pub_date, "j E, H:i") if local_pub_date else "Сегодня"
             notifications_results.append({
                 "title": item.title,
                 "text": item.description,
                 "location": item.village,
                 "category": item.get_category_display(),
-                "date": item.publish_date.strftime("%d %b") if item.publish_date else "Сегодня",
+                "date": date_str,
             })
             
         if not notifications_results:

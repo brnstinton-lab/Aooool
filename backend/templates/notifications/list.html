@@ -52,7 +52,7 @@
                         {% endif %}
                         {{ item.get_category_display }}
                     </span>
-                    <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"d E Y, H:i" }}</span>
+                    <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"j E, H:i" }}</span>
                 </div>
 
                 <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
@@ -75,7 +75,7 @@
                 <div class="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
                     <span>📍 {{ item.village }}</span>
                     {% if item.expire_date %}
-                        <span class="text-slate-400 text-[11px]">Действует до: {{ item.expire_date|date:"d E" }}</span>
+                        <span class="text-slate-400 text-[11px]">Действует до: {{ item.expire_date|date:"j E, H:i" }}</span>
                     {% else %}
                         <span class="text-amber-700 font-semibold">Официально</span>
                     {% endif %}

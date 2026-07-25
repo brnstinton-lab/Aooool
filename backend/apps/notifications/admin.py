@@ -8,22 +8,20 @@ class AnnouncementAdmin(admin.ModelAdmin):
         'title',
         'category',
         'village',
-        'is_important',
-        'is_pinned',
-        'status',
         'publish_date',
+        'is_pinned',
+        'is_important',
+        'status',
     )
     list_filter = (
         'category',
         'status',
-        'village',
         'is_important',
-        'is_pinned',
     )
     search_fields = (
         'title',
         'description',
-        'village',
     )
     ordering = ('-publish_date',)
     date_hierarchy = 'publish_date'
+    list_editable = ('status', 'is_pinned', 'is_important')

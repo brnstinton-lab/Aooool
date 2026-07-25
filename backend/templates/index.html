@@ -46,7 +46,7 @@
                 <span class="material-symbols-outlined text-amber-500 text-xl">notifications_active</span>
                 Важные объявления
             </h2>
-            <a href="/announcements/" class="text-xs font-bold text-emerald-700 hover:underline">Все →</a>
+            <a href="{% url 'notifications:list' %}" class="text-xs font-bold text-emerald-700 hover:underline">Все →</a>
         </div>
 
         <div class="space-y-2.5">
@@ -68,7 +68,7 @@
                                 {% endif %}
                                 {{ item.get_category_display }}
                             </span>
-                            <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"d E, H:i" }}</span>
+                            <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"j E, H:i" }}</span>
                         </div>
                         <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                             {% if item.is_important %}
