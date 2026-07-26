@@ -41,10 +41,10 @@ class Trip(models.Model):
         verbose_name="Время отправления", null=True, blank=True
     )
     seats_available = models.PositiveIntegerField(
-        default=1, verbose_name="Количество свободных мест"
+        null=True, blank=True, verbose_name="Количество свободных мест"
     )
     price = models.PositiveIntegerField(
-        default=0, verbose_name="Стоимость (₸)"
+        null=True, blank=True, verbose_name="Стоимость (₸)"
     )
     comment = models.TextField(blank=True, verbose_name="Комментарий")
     created_at = models.DateTimeField(
