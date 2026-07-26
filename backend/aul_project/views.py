@@ -3,6 +3,49 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.formats import date_format
 from apps.notifications.models import Announcement
+from apps.trips.models import Trip
+
+
+def get_relative_time_str(dt):
+    """Форматирует дату в человеческое относительное время (Только что, N минут назад, Вчера и т.д.)"""
+    if not dt:
+        return "Только что"
+    now = timezone.now()
+    if dt > now:
+        return "Только что"
+    diff = now - dt
+    seconds = int(diff.total_seconds())
+    if seconds < 60:
+        return "Только что"
+    
+    minutes = seconds // 60
+    if minutes < 60:
+        if minutes % 10 == 1 and minutes % 100 != 11:
+            return f"{minutes} минуту назад"
+        elif minutes % 10 in (2, 3, 4) and minutes % 100 not in (12, 13, 14):
+            return f"{minutes} минуты назад"
+        else:
+            return f"{minutes} минут назад"
+            
+    hours = minutes // 60
+    if hours < 24:
+        if hours % 10 == 1 and hours % 100 != 11:
+            return f"{hours} час назад"
+        elif hours % 10 in (2, 3, 4) and hours % 100 not in (12, 13, 14):
+            return f"{hours} часа назад"
+        else:
+            return f"{hours} часов назад"
+            
+    days = hours // 24
+    if days == 1:
+        return "Вчера"
+    elif days < 7:
+        if days % 10 in (2, 3, 4) and days % 100 not in (12, 13, 14):
+            return f"{days} дня назад"
+        else:
+            return f"{days} дней назад"
+    else:
+        return date_format(timezone.localtime(dt), "j E")
 
 # Демо-данные для поиска и ленты (до полного подключения всех Django-моделей БД)
 MOCK_NOTIFICATIONS = [
@@ -92,22 +135,42 @@ def get_aggregated_feed():
                 "url": "/notifications/"
             })
 
-    for item in MOCK_TRIPS:
-        feed.append({
-            "type": "trip",
-            "type_label": "Поездка",
-            "title": item["title"],
-            "text": item["text"],
-            "badge": "2 места",
-            "badge_style": "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold",
-            "icon": "directions_car",
-            "icon_style": "bg-emerald-100 text-emerald-800",
-            "meta": f"Цена: {item['price']}",
-            "time_str": item["date"],
-            "timestamp": item.get("timestamp", 0),
-            "phone": item.get("phone"),
-            "url": "/trips/"
-        })
+    # 2. Загрузка реальных актуальных (непросроченных) поездок из БД
+    db_trips = Trip.objects.upcoming().order_by('-created_at')
+    if db_trips.exists():
+        for item in db_trips:
+            feed.append({
+                "type": "trip",
+                "type_label": "Поездка",
+                "title": f"{item.from_location} → {item.to_location}",
+                "text": "",
+                "badge": "Новая поездка",
+                "badge_style": "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold",
+                "icon": "directions_car",
+                "icon_style": "bg-emerald-100 text-emerald-800",
+                "meta": "",
+                "time_str": get_relative_time_str(item.created_at),
+                "timestamp": int(item.created_at.timestamp()) if item.created_at else 0,
+                "phone": None,
+                "url": "/trips/"
+            })
+    else:
+        for item in MOCK_TRIPS:
+            feed.append({
+                "type": "trip",
+                "type_label": "Поездка",
+                "title": item["title"],
+                "text": "",
+                "badge": "Новая поездка",
+                "badge_style": "bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold",
+                "icon": "directions_car",
+                "icon_style": "bg-emerald-100 text-emerald-800",
+                "meta": "",
+                "time_str": "Только что",
+                "timestamp": item.get("timestamp", 0),
+                "phone": None,
+                "url": "/trips/"
+            })
 
     for item in MOCK_ADS:
         feed.append({
@@ -213,10 +276,25 @@ def search_view(request):
             ]
         
         # Поиск по поездкам
-        trips_results = [
-            item for item in MOCK_TRIPS
-            if q_lower in item['title'].lower() or q_lower in item['text'].lower()
-        ]
+        db_trips_search = Trip.objects.upcoming().filter(
+            Q(from_location__icontains=query) |
+            Q(to_location__icontains=query) |
+            Q(driver_name__icontains=query) |
+            Q(comment__icontains=query)
+        )
+        for item in db_trips_search:
+            trips_results.append({
+                "title": f"{item.from_location} → {item.to_location}",
+                "text": f"Водитель: {item.driver_name} • {item.seats_available} мест",
+                "price": f"{item.price} ₸",
+                "phone": item.phone,
+                "date": get_relative_time_str(item.created_at)
+            })
+        if not trips_results:
+            trips_results = [
+                item for item in MOCK_TRIPS
+                if q_lower in item['title'].lower() or q_lower in item['text'].lower()
+            ]
         
         # Поиск по объявлениям
         ads_results = [
