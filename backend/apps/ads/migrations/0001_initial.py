@@ -1,6 +1,5 @@
-# Generated migration for notifications (Announcement)
+# Generated migration for ads (Ad)
 from django.db import migrations, models
-import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -12,26 +11,54 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Announcement',
+            name='Ad',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255, verbose_name='Заголовок')),
+                ('title', models.CharField(max_length=200, verbose_name='Заголовок')),
+                ('ad_type', models.CharField(
+                    choices=[
+                        ('SELL', 'Продам'),
+                        ('BUY', 'Куплю'),
+                        ('GIVE', 'Отдам'),
+                        ('EXCHANGE', 'Обменяю'),
+                        ('SEARCH', 'Ищу')
+                    ],
+                    max_length=20,
+                    verbose_name='Тип объявления'
+                )),
+                ('category', models.CharField(
+                    choices=[
+                        ('FOOD', 'Продукты'),
+                        ('ANIMALS', 'Животные'),
+                        ('EQUIPMENT', 'Техника'),
+                        ('BUILDING', 'Стройматериалы'),
+                        ('CLOTHING', 'Одежда'),
+                        ('ELECTRONICS', 'Электроника'),
+                        ('OTHER', 'Разное')
+                    ],
+                    max_length=30,
+                    verbose_name='Категория'
+                )),
                 ('description', models.TextField(verbose_name='Описание')),
-                ('category', models.CharField(choices=[('ELECTRICITY', '⚡ Электричество'), ('WATER', '💧 Водоснабжение'), ('ROADS', '🚧 Дороги'), ('EMERGENCY', '🚨 Экстренное'), ('IMPORTANT', '📢 Важное'), ('EVENT', '🎉 Событие')], default='IMPORTANT', max_length=20, verbose_name='Категория')),
-                ('village', models.CharField(default='с. Кабанбай', max_length=100, verbose_name='Населённый пункт')),
-                ('publish_date', models.DateTimeField(default=django.utils.timezone.now, verbose_name='Дата публикации')),
-                ('expire_date', models.DateTimeField(blank=True, null=True, verbose_name='Дата окончания действия')),
-                ('is_important', models.BooleanField(default=False, verbose_name='Важное')),
-                ('is_pinned', models.BooleanField(default=False, verbose_name='Закреплено')),
-                ('image', models.ImageField(blank=True, null=True, upload_to='announcements/', verbose_name='Изображение')),
-                ('status', models.CharField(choices=[('ACTIVE', 'Активно'), ('ARCHIVED', 'В архиве')], default='ACTIVE', max_length=20, verbose_name='Статус')),
+                ('phone', models.CharField(max_length=30, verbose_name='Телефон')),
+                ('price', models.PositiveIntegerField(blank=True, null=True, verbose_name='Цена (₸)')),
+                ('comment', models.TextField(blank=True, verbose_name='Комментарий')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
+                ('status', models.CharField(
+                    choices=[
+                        ('ACTIVE', 'Активное'),
+                        ('ARCHIVED', 'В архиве')
+                    ],
+                    default='ACTIVE',
+                    max_length=20,
+                    verbose_name='Статус'
+                )),
             ],
             options={
-                'verbose_name': 'Официальное объявление',
-                'verbose_name_plural': 'Официальные объявления',
-                'ordering': ['-is_pinned', '-publish_date'],
+                'db_table': 'ads_ad',
+                'verbose_name': 'Объявление',
+                'verbose_name_plural': 'Объявления',
+                'ordering': ['-created_at'],
             },
         ),
     ]
