@@ -40,12 +40,13 @@
     <!-- HTMX CDN -->
     <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
     
-    <!-- Alpine.js CDN -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="{% static 'js/app.js' %}" defer></script>
+
+    <!-- Alpine.js & Plugins CDN -->
+    <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full flex flex-col font-sans text-slate-900 bg-slate-100 antialiased selection:bg-emerald-200 selection:text-emerald-900" x-data="{ activeTab: 'home', createModalOpen: false }">
 
@@ -115,7 +116,7 @@
                     </div>
                 </a>
 
-                <a href="/ads/" class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-blue-50 hover:bg-blue-100/80 text-blue-900 transition border border-blue-200/60">
+                <a href="{% url 'ads:create' %}" class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-blue-50 hover:bg-blue-100/80 text-blue-900 transition border border-blue-200/60">
                     <span class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center material-symbols-outlined">shopping_bag</span>
                     <div>
                         <div class="font-bold text-sm">Объявление</div>

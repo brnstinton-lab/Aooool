@@ -89,6 +89,48 @@ class Ad(models.Model):
     def __str__(self):
         return f"[{self.get_ad_type_display()}] {self.title}"
 
+    def get_relative_time(self) -> str:
+        """Возвращает относительное время создания объявления (Только что, N минут назад, N часов назад)"""
+        if not self.created_at:
+            return "Только что"
+        now = timezone.now()
+        if self.created_at > now:
+            return "Только что"
+        diff = now - self.created_at
+        seconds = int(diff.total_seconds())
+        if seconds < 60:
+            return "Только что"
+
+        minutes = seconds // 60
+        if minutes < 60:
+            if minutes % 10 == 1 and minutes % 100 != 11:
+                return f"{minutes} минуту назад"
+            elif minutes % 10 in (2, 3, 4) and minutes % 100 not in (12, 13, 14):
+                return f"{minutes} минуты назад"
+            else:
+                return f"{minutes} минут назад"
+
+        hours = minutes // 60
+        if hours < 24:
+            if hours % 10 == 1 and hours % 100 != 11:
+                return f"{hours} час назад"
+            elif hours % 10 in (2, 3, 4) and hours % 100 not in (12, 13, 14):
+                return f"{hours} часа назад"
+            else:
+                return f"{hours} часов назад"
+
+        days = hours // 24
+        if days == 1:
+            return "Вчера"
+        elif days < 7:
+            if days % 10 in (2, 3, 4) and days % 100 not in (12, 13, 14):
+                return f"{days} дня назад"
+            else:
+                return f"{days} дней назад"
+        else:
+            from django.utils.formats import date_format
+            return date_format(timezone.localtime(self.created_at), "j E")
+
     def is_expired(self) -> bool:
         """Проверяет, истекли ли 30 дней с момента публикации объявления"""
         if not self.created_at:
@@ -103,3 +145,44 @@ class Ad(models.Model):
             self.save(update_fields=['status'])
             return True
         return False
+
+
+class AdImage(models.Model):
+    """Модель фотографии объявления"""
+    ad = models.ForeignKey(
+        Ad,
+        on_delete=models.CASCADE,
+        related_name='images',
+        verbose_name="Объявление"
+    )
+    image = models.ImageField(
+        upload_to='ads/photos/%Y/%m/',
+        verbose_name="Фотография"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата загрузки"
+    )
+
+    class Meta:
+        db_table = 'ads_ad_image'
+        verbose_name = "Фотография объявления"
+        verbose_name_plural = "Фотографии объявлений"
+        ordering = ['id']
+
+    def __str__(self):
+        return f"Фото #{self.id} для объявления [{self.ad_id}]"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image:
+            try:
+                from PIL import Image
+                img_path = self.image.path
+                img = Image.open(img_path)
+                max_size = (1600, 1600)
+                if img.height > max_size[1] or img.width > max_size[0]:
+                    img.thumbnail(max_size, Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.ANTIALIAS)
+                    img.save(img_path, quality=85, optimize=True)
+            except Exception:
+                pass

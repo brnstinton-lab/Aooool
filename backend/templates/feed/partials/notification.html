@@ -1,0 +1,27 @@
+<div class="space-y-3 pt-1">
+    <!-- Category & Village Banner -->
+    <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+            {{ details.category_display }}
+        </span>
+        <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs">location_on</span>
+            {{ details.village }}
+        </span>
+    </div>
+
+    <!-- Full Description -->
+    {% if details.description %}
+        <div class="text-xs text-slate-800 leading-relaxed bg-amber-50/50 p-3 rounded-xl border border-amber-100/80 whitespace-pre-line">
+            {{ details.description }}
+        </div>
+    {% endif %}
+
+    <!-- Publish info -->
+    {% if details.publish_date_str %}
+        <div class="text-[11px] text-slate-400 flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs">schedule</span>
+            <span>Опубликовано: {{ details.publish_date_str }}</span>
+        </div>
+    {% endif %}
+</div>
