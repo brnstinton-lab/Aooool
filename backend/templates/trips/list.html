@@ -8,7 +8,7 @@
     <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-200/80 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <span class="material-symbols-outlined text-2xl">directions_car</span>
+                <span class="material-symbols-rounded text-2xl">directions_car</span>
             </div>
             <div>
                 <h1 class="text-lg font-bold text-emerald-950">🚗 Поездки и попутчики</h1>
@@ -16,7 +16,7 @@
             </div>
         </div>
         <a href="{% url 'trips:create' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1 shrink-0 shadow-xs active:scale-95 transition">
-            <span class="material-symbols-outlined text-sm">add</span>
+            <span class="material-symbols-rounded text-sm">add</span>
             Добавить
         </a>
     </div>
@@ -49,13 +49,13 @@
                     <div>
                         {% if item.seats_available is not None %}
                         <div class="flex items-center gap-1.5">
-                            <span class="material-symbols-outlined text-sm text-slate-400">airline_seat_recline_normal</span>
+                            <span class="material-symbols-rounded text-sm text-slate-400">airline_seat_recline_normal</span>
                             <span class="font-bold text-emerald-700">{{ item.seats_available }} свободных мест</span>
                         </div>
                         {% endif %}
                     </div>
                     <a href="tel:{{ item.phone }}" class="bg-emerald-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 hover:bg-emerald-700 active:scale-95 transition">
-                        <span class="material-symbols-outlined text-sm">call</span>
+                        <span class="material-symbols-rounded text-sm">call</span>
                         Позвонить
                     </a>
                 </div>
@@ -64,12 +64,12 @@
         {% else %}
             <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center space-y-3">
                 <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <span class="material-symbols-outlined text-2xl">directions_car</span>
+                    <span class="material-symbols-rounded text-2xl">directions_car</span>
                 </div>
                 <h3 class="font-bold text-slate-800 text-sm">Активных поездок пока нет</h3>
                 <p class="text-xs text-slate-500 max-w-xs mx-auto">Вы можете добавить первую поездку или предложение попутчика.</p>
                 <a href="{% url 'trips:create' %}" class="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold text-xs px-4 py-2 rounded-xl hover:bg-emerald-700 transition">
-                    <span class="material-symbols-outlined text-sm">add</span>
+                    <span class="material-symbols-rounded text-sm">add</span>
                     Добавить поездку
                 </a>
             </div>

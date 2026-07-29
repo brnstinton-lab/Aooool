@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Сервисы села{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Page Title -->
+    <div>
+        <h1 class="text-[24px] font-bold text-[#111827]">Сервисы села</h1>
+        <p class="text-[14px] text-[#6B7280] mt-1">Все важные инструменты и службы вашего аула</p>
+    </div>
+
+    <!-- Services Grid (4 Big Cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <!-- Card 1: Поездки -->
+        <a href="/trips/" class="bg-white rounded-[20px] p-5 border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] hover:border-[#16A34A] transition-all flex items-center justify-between group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[16px] bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-[28px]">directions_car</span>
+                </div>
+                <div>
+                    <h3 class="text-[20px] font-semibold text-[#111827] group-hover:text-[#16A34A] transition-colors">Поездки и такси</h3>
+                    <p class="text-[14px] text-[#6B7280] mt-0.5">Попутчики в город, такси и межгород</p>
+                </div>
+            </div>
+            <span class="material-symbols-rounded text-[24px] text-[#6B7280] group-hover:text-[#16A34A] transition-colors">chevron_right</span>
+        </a>
+
+        <!-- Card 2: Объявления -->
+        <a href="/ads/" class="bg-white rounded-[20px] p-5 border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] hover:border-[#2563EB] transition-all flex items-center justify-between group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[16px] bg-[#DBEAFE] text-[#2563EB] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-[28px]">shopping_bag</span>
+                </div>
+                <div>
+                    <h3 class="text-[20px] font-semibold text-[#111827] group-hover:text-[#2563EB] transition-colors">Объявления</h3>
+                    <p class="text-[14px] text-[#6B7280] mt-0.5">Купля, продажа, скот, техника</p>
+                </div>
+            </div>
+            <span class="material-symbols-rounded text-[24px] text-[#6B7280] group-hover:text-[#2563EB] transition-colors">chevron_right</span>
+        </a>
+
+        <!-- Card 3: Оповещения -->
+        <a href="/notifications/" class="bg-white rounded-[20px] p-5 border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] hover:border-[#D97706] transition-all flex items-center justify-between group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[16px] bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-[28px]">bolt</span>
+                </div>
+                <div>
+                    <h3 class="text-[20px] font-semibold text-[#111827] group-hover:text-[#D97706] transition-colors">Оповещения</h3>
+                    <p class="text-[14px] text-[#6B7280] mt-0.5">Отключения, ремонт, новости акимата</p>
+                </div>
+            </div>
+            <span class="material-symbols-rounded text-[24px] text-[#6B7280] group-hover:text-[#D97706] transition-colors">chevron_right</span>
+        </a>
+
+        <!-- Card 4: Справочник -->
+        <a href="/directory/" class="bg-white rounded-[20px] p-5 border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] hover:border-[#9333EA] transition-all flex items-center justify-between group">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[16px] bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-[28px]">import_contacts</span>
+                </div>
+                <div>
+                    <h3 class="text-[20px] font-semibold text-[#111827] group-hover:text-[#9333EA] transition-colors">Справочник</h3>
+                    <p class="text-[14px] text-[#6B7280] mt-0.5">Контакты больниц, акимата, мастеров</p>
+                </div>
+            </div>
+            <span class="material-symbols-rounded text-[24px] text-[#6B7280] group-hover:text-[#9333EA] transition-colors">chevron_right</span>
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

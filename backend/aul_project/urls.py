@@ -6,13 +6,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from .views import home_view, feed_view, search_view, profile_view
+from .views import home_view, feed_view, search_view, profile_view, services_view
 
 urlpatterns = [
     path('', home_view, name='home'),
     path('feed/', feed_view, name='feed'),
     path('search/', search_view, name='search'),
     path('profile/', profile_view, name='profile'),
+    path('services/', services_view, name='services'),
     path('admin/', admin.site.urls),
     path('notifications/', include('apps.notifications.urls')),
     path('trips/', include('apps.trips.urls')),

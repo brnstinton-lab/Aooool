@@ -3,57 +3,54 @@
 {% block title %}AUL — Лента аула | Свой посёлок. Свои люди.{% endblock %}
 
 {% block content %}
-<div class="space-y-4" x-data="{ expandedId: null, activeFilter: 'all' }">
+<div class="space-y-5" x-data="{ expandedId: null, activeFilter: 'all' }">
 
-    <!-- Header Card -->
-    <div class="bg-gradient-to-r from-emerald-800 to-teal-800 rounded-3xl p-5 text-white shadow-md flex items-center justify-between">
-        <div class="space-y-1">
-            <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-200 bg-white/10 px-2.5 py-0.5 rounded-full inline-block">
-                Главный экран села
-            </span>
-            <h1 class="text-xl font-black text-white">Лента аула</h1>
-            <p class="text-xs text-emerald-100/90 leading-snug">Единая интерактивная лента объявлений, поездок, оповещений и контактов.</p>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md text-emerald-100 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-2xl">rss_feed</span>
-        </div>
+    <!-- Header Block -->
+    <div>
+        <h1 class="text-[24px] font-bold text-[#111827]">Лента аула</h1>
+        <p class="text-[14px] text-[#6B7280] mt-1">Единый поток объявлений, поездок, оповещений и контактов села Кабанбай.</p>
     </div>
 
-    <!-- Filter Chips for Feed -->
+    <!-- Filter Chips for Feed (min 14px font) -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <button @click="activeFilter = 'all'"
-                :class="activeFilter === 'all' ? 'bg-emerald-700 text-white font-bold shadow-xs' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-medium'"
-                class="px-3.5 py-1.5 rounded-full text-xs shrink-0 transition">
+        <button type="button"
+                @click="activeFilter = 'all'"
+                :class="activeFilter === 'all' ? 'bg-[#16A34A] text-white shadow-xs font-semibold' : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F8FAFC] font-medium'"
+                class="px-4 py-2 rounded-full text-[14px] shrink-0 transition">
             Все события ({{ events|length }})
         </button>
-        <button @click="activeFilter = 'notification'"
-                :class="activeFilter === 'notification' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'bg-white hover:bg-amber-50 text-slate-700 border border-slate-200 font-medium'"
-                class="px-3 py-1.5 rounded-full text-xs shrink-0 flex items-center gap-1 transition">
-            <span class="material-symbols-outlined text-sm text-amber-500" :class="activeFilter === 'notification' ? 'text-white' : ''">bolt</span>
+        <button type="button"
+                @click="activeFilter = 'notification'"
+                :class="activeFilter === 'notification' ? 'bg-[#F59E0B] text-white shadow-xs font-semibold' : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F8FAFC] font-medium'"
+                class="px-4 py-2 rounded-full text-[14px] shrink-0 flex items-center gap-1.5 transition">
+            <span class="material-symbols-rounded text-[18px]">bolt</span>
             Оповещения
         </button>
-        <button @click="activeFilter = 'trip'"
-                :class="activeFilter === 'trip' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 font-medium'"
-                class="px-3 py-1.5 rounded-full text-xs shrink-0 flex items-center gap-1 transition">
-            <span class="material-symbols-outlined text-sm text-emerald-600" :class="activeFilter === 'trip' ? 'text-white' : ''">directions_car</span>
+        <button type="button"
+                @click="activeFilter = 'trip'"
+                :class="activeFilter === 'trip' ? 'bg-[#16A34A] text-white shadow-xs font-semibold' : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F8FAFC] font-medium'"
+                class="px-4 py-2 rounded-full text-[14px] shrink-0 flex items-center gap-1.5 transition">
+            <span class="material-symbols-rounded text-[18px]">directions_car</span>
             Поездки
         </button>
-        <button @click="activeFilter = 'ad'"
-                :class="activeFilter === 'ad' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'bg-white hover:bg-blue-50 text-slate-700 border border-slate-200 font-medium'"
-                class="px-3 py-1.5 rounded-full text-xs shrink-0 flex items-center gap-1 transition">
-            <span class="material-symbols-outlined text-sm text-blue-600" :class="activeFilter === 'ad' ? 'text-white' : ''">shopping_bag</span>
+        <button type="button"
+                @click="activeFilter = 'ad'"
+                :class="activeFilter === 'ad' ? 'bg-[#2563EB] text-white shadow-xs font-semibold' : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F8FAFC] font-medium'"
+                class="px-4 py-2 rounded-full text-[14px] shrink-0 flex items-center gap-1.5 transition">
+            <span class="material-symbols-rounded text-[18px]">shopping_bag</span>
             Объявления
         </button>
-        <button @click="activeFilter = 'directory'"
-                :class="activeFilter === 'directory' ? 'bg-purple-600 text-white font-bold shadow-xs' : 'bg-white hover:bg-purple-50 text-slate-700 border border-slate-200 font-medium'"
-                class="px-3 py-1.5 rounded-full text-xs shrink-0 flex items-center gap-1 transition">
-            <span class="material-symbols-outlined text-sm text-purple-600" :class="activeFilter === 'directory' ? 'text-white' : ''">import_contacts</span>
+        <button type="button"
+                @click="activeFilter = 'directory'"
+                :class="activeFilter === 'directory' ? 'bg-[#9333EA] text-white shadow-xs font-semibold' : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:bg-[#F8FAFC] font-medium'"
+                class="px-4 py-2 rounded-full text-[14px] shrink-0 flex items-center gap-1.5 transition">
+            <span class="material-symbols-rounded text-[18px]">import_contacts</span>
             Справочник
         </button>
     </div>
 
     <!-- Interactive Expandable Feed List -->
-    <div class="space-y-2.5">
+    <div class="space-y-4">
         {% for event in events %}
             <div x-show="activeFilter === 'all' || activeFilter === '{{ event.type }}'"
                  x-transition:enter="transition ease-out duration-200"
@@ -62,9 +59,10 @@
                 {% include "feed/feed_card.html" with event=event %}
             </div>
         {% empty %}
-            <div class="bg-white rounded-2xl p-8 text-center text-slate-500 border border-slate-200">
-                <span class="material-symbols-outlined text-3xl text-slate-300 block mb-2">inbox</span>
-                <p class="text-sm font-medium">Лента пока пуста.</p>
+            <div class="bg-white rounded-[20px] p-8 text-center border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)]">
+                <span class="material-symbols-rounded text-[40px] text-[#6B7280] block mb-2">inbox</span>
+                <p class="text-[16px] font-semibold text-[#111827]">Лента пока пуста</p>
+                <p class="text-[14px] text-[#6B7280] mt-1">Опубликуйте новое объявление или предложите поездку.</p>
             </div>
         {% endfor %}
     </div>

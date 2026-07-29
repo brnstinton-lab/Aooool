@@ -7,7 +7,7 @@
 
     <!-- Search Form Input -->
     <form action="/search/" method="GET" class="bg-white rounded-full px-4 py-2.5 shadow-xs border border-slate-200/90 flex items-center gap-3">
-        <span class="material-symbols-outlined text-emerald-600 text-2xl">search</span>
+        <span class="material-symbols-rounded text-emerald-600 text-2xl">search</span>
         <input type="text" name="q" value="{{ query }}" placeholder="Поиск по AUL (поездки, товары, службы)..." class="w-full bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400 font-medium" autofocus />
         <button type="submit" class="bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full hover:bg-emerald-700 transition active:scale-95 shrink-0">
             Искать
@@ -26,7 +26,7 @@
         </div>
     {% else %}
         <div class="bg-white rounded-2xl p-6 text-center text-slate-500 space-y-2 border border-slate-200">
-            <span class="material-symbols-outlined text-4xl text-slate-300">search_check</span>
+            <span class="material-symbols-rounded text-4xl text-slate-300">search_check</span>
             <p class="text-sm font-medium">Введите ключевое слово в строку поиска выше.</p>
             <p class="text-xs text-slate-400">Ищет одновременно по всем объявлениям, поездкам, справочнику и оповещениям.</p>
         </div>
@@ -35,7 +35,7 @@
     {% if query and total_count == 0 %}
         <!-- Empty Results Message -->
         <div class="bg-white rounded-2xl p-8 text-center text-slate-500 space-y-2 border border-slate-200/90">
-            <span class="material-symbols-outlined text-4xl text-slate-300">find_in_page</span>
+            <span class="material-symbols-rounded text-4xl text-slate-300">find_in_page</span>
             <p class="text-sm font-bold text-slate-700">Ничего не найдено</p>
             <p class="text-xs text-slate-500">Попробуйте изменить запрос или поискать другое слово.</p>
         </div>
@@ -46,7 +46,7 @@
         {% if notifications %}
             <div class="space-y-2 pt-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5 px-1">
-                    <span class="material-symbols-outlined text-base">bolt</span>
+                    <span class="material-symbols-rounded text-base">bolt</span>
                     Оповещения ({{ notifications|length }})
                 </h2>
                 <div class="space-y-2">
@@ -69,7 +69,7 @@
         {% if trips %}
             <div class="space-y-2 pt-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5 px-1">
-                    <span class="material-symbols-outlined text-base">directions_car</span>
+                    <span class="material-symbols-rounded text-base">directions_car</span>
                     Поездки ({{ trips|length }})
                 </h2>
                 <div class="space-y-2">
@@ -83,7 +83,7 @@
                             <div class="text-right shrink-0">
                                 <div class="text-sm font-extrabold text-slate-900 mb-1.5">{{ item.price }}</div>
                                 <a href="tel:{{ item.phone }}" class="bg-emerald-600 text-white p-2 rounded-xl text-xs font-bold inline-flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-base">call</span>
+                                    <span class="material-symbols-rounded text-base">call</span>
                                 </a>
                             </div>
                         </div>
@@ -96,7 +96,7 @@
         {% if ads %}
             <div class="space-y-2 pt-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-blue-800 flex items-center gap-1.5 px-1">
-                    <span class="material-symbols-outlined text-base">shopping_bag</span>
+                    <span class="material-symbols-rounded text-base">shopping_bag</span>
                     Объявления ({{ ads|length }})
                 </h2>
                 <div class="space-y-2">
@@ -110,7 +110,7 @@
                             <div class="text-right shrink-0">
                                 <div class="text-sm font-extrabold text-slate-900 mb-1.5">{{ item.price }}</div>
                                 <a href="tel:{{ item.phone }}" class="bg-blue-600 text-white p-2 rounded-xl text-xs font-bold inline-flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-base">call</span>
+                                    <span class="material-symbols-rounded text-base">call</span>
                                 </a>
                             </div>
                         </div>
@@ -123,7 +123,7 @@
         {% if directory %}
             <div class="space-y-2 pt-2">
                 <h2 class="text-xs font-bold uppercase tracking-wider text-purple-800 flex items-center gap-1.5 px-1">
-                    <span class="material-symbols-outlined text-base">import_contacts</span>
+                    <span class="material-symbols-rounded text-base">import_contacts</span>
                     Справочник ({{ directory|length }})
                 </h2>
                 <div class="space-y-2">
@@ -135,7 +135,7 @@
                                 <p class="text-xs text-slate-500">{{ item.text }}</p>
                             </div>
                             <a href="tel:{{ item.phone }}" class="w-9 h-9 rounded-full bg-purple-50 text-purple-700 flex items-center justify-center hover:bg-purple-100 transition shrink-0">
-                                <span class="material-symbols-outlined text-lg">call</span>
+                                <span class="material-symbols-rounded text-lg">call</span>
                             </a>
                         </div>
                     {% endfor %}

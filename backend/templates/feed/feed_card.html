@@ -1,4 +1,4 @@
-<div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:border-slate-300 transition-all duration-200 overflow-hidden"
+<div class="bg-white rounded-[20px] border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] hover:border-[#16A34A] transition-all duration-200 overflow-hidden"
      x-data="{
          viewerOpen: false,
          viewerImages: [],
@@ -25,38 +25,39 @@
      }">
     <!-- Collapsed Header Card (Always Visible) -->
     <div @click="expandedId = (expandedId === '{{ event.id }}' ? null : '{{ event.id }}')"
-         class="p-3.5 flex items-center justify-between gap-3 cursor-pointer select-none hover:bg-slate-50/80 active:bg-slate-100/60 transition">
+         class="p-4 flex items-center justify-between gap-3 cursor-pointer select-none hover:bg-[#F8FAFC] transition">
         
         <div class="flex items-center gap-3 min-w-0">
             <!-- Event Icon -->
-            <div class="w-10 h-10 rounded-xl {{ event.icon_style }} flex items-center justify-center shrink-0 shadow-2xs">
-                <span class="material-symbols-outlined text-xl">{{ event.icon }}</span>
+            <div class="w-11 h-11 rounded-[14px] {{ event.icon_style }} flex items-center justify-center shrink-0">
+                <span class="material-symbols-rounded text-[24px]">{{ event.icon }}</span>
             </div>
 
             <!-- Title & Meta Info -->
-            <div class="min-w-0 space-y-0.5">
+            <div class="min-w-0 space-y-1">
                 <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-md {{ event.badge_style }}">
+                    <span class="text-[14px] font-semibold px-2.5 py-0.5 rounded-md {{ event.badge_style }}">
                         {{ event.badge }}
                     </span>
-                    <span class="text-[11px] text-slate-400 font-medium shrink-0">
+                    <span class="text-[14px] text-[#6B7280] font-normal shrink-0">
                         {{ event.time_str }}
                     </span>
                 </div>
-                <h3 class="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                <h3 class="font-bold text-[#111827] text-[16px] truncate">
                     {{ event.title }}
                 </h3>
             </div>
         </div>
 
         <!-- Toggle Arrow Button ▼ -->
-        <div class="w-8 h-8 rounded-full bg-slate-100/80 flex items-center justify-center shrink-0 text-slate-500 transition-colors group-hover:bg-slate-200">
-            <span class="material-symbols-outlined text-lg transition-transform duration-300"
-                  :class="expandedId === '{{ event.id }}' ? 'rotate-180 text-emerald-600' : ''">
+        <div class="w-9 h-9 rounded-full bg-[#F8FAFC] flex items-center justify-center shrink-0 text-[#6B7280] transition-colors">
+            <span class="material-symbols-rounded text-[24px] transition-transform duration-300"
+                  :class="expandedId === '{{ event.id }}' ? 'rotate-180 text-[#16A34A]' : ''">
                 expand_more
             </span>
         </div>
     </div>
+
 
     <!-- Expanded Body Content (Accordion) -->
     <div x-show="expandedId === '{{ event.id }}'"
@@ -153,7 +154,7 @@
                     @click="closeViewer()"
                     class="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-xs"
                     title="Закрыть (Esc)">
-                <span class="material-symbols-outlined text-2xl">close</span>
+                <span class="material-symbols-rounded text-2xl">close</span>
             </button>
 
             <!-- Main Centered Image Container -->
@@ -179,7 +180,7 @@
                     @click.stop="prevViewer()"
                     class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-xs"
                     title="Предыдущая фотография">
-                <span class="material-symbols-outlined text-2xl">chevron_left</span>
+                <span class="material-symbols-rounded text-2xl">chevron_left</span>
             </button>
 
             <!-- Right Arrow Button → -->
@@ -188,7 +189,7 @@
                     @click.stop="nextViewer()"
                     class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-xs"
                     title="Следующая фотография">
-                <span class="material-symbols-outlined text-2xl">chevron_right</span>
+                <span class="material-symbols-rounded text-2xl">chevron_right</span>
             </button>
 
             <!-- Indicator Dots & Counter (● ○ ○ ○) -->

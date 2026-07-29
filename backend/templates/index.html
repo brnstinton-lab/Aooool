@@ -1,310 +1,196 @@
 {% extends "base.html" %}
 
-{% block title %}AUL — Главная | Свой посёлок. Свои люди.{% endblock %}
+{% block title %}AUL — Главная | Панель аула Кабанбай{% endblock %}
 
 {% block content %}
-<div class="space-y-5">
+<div class="space-y-6" x-data="{ activeFilter: 'all', showFilters: false, expandedId: null }">
 
-    <!-- MD3 Search Bar with Village Selector -->
-    <form action="/search/" method="GET" class="bg-white rounded-full px-4 py-2.5 shadow-xs border border-slate-200/90 flex items-center gap-3">
-        <span class="material-symbols-outlined text-slate-400 text-2xl">search</span>
-        <input type="text" name="q" placeholder="Поиск по AUL (поездки, товары, службы)..." class="w-full bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400 font-medium" />
-        <button type="submit" class="flex items-center gap-1 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 shrink-0 hover:bg-emerald-100 transition">
-            <span class="material-symbols-outlined text-sm">location_on</span>
-            <span>Кабанбай</span>
-        </button>
-    </form>
-
-    <!-- Quick Category Chips Carousel (MD3 Filter Chips) -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
-        <a href="/" class="bg-emerald-700 text-white px-3.5 py-2 rounded-full text-xs font-bold shrink-0 shadow-xs flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm">grid_view</span>
-            Все
-        </a>
-        <a href="/notifications/" class="bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-900 border border-slate-200 px-3.5 py-2 rounded-full text-xs font-medium shrink-0 transition flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm text-amber-500">bolt</span>
-            Оповещения
-        </a>
-        <a href="/trips/" class="bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200 px-3.5 py-2 rounded-full text-xs font-medium shrink-0 transition flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm text-emerald-600">directions_car</span>
-            Поездки
-        </a>
-        <a href="/ads/" class="bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 px-3.5 py-2 rounded-full text-xs font-medium shrink-0 transition flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm text-blue-600">shopping_bag</span>
-            Объявления
-        </a>
-        <a href="/directory/" class="bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-900 border border-slate-200 px-3.5 py-2 rounded-full text-xs font-medium shrink-0 transition flex items-center gap-1.5">
-            <span class="material-symbols-outlined text-sm text-purple-600">import_contacts</span>
-            Справочник
-        </a>
-    </div>
-
-    <!-- Секция: Актуальные Оповещения (⚡ Важное в ауле) -->
-    <div class="space-y-3 pt-1">
+    <!-- 1. Weather Widget (Виджет погоды) -->
+    <section class="bg-white rounded-[20px] p-5 border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] space-y-4">
+        <!-- Weather Header Row -->
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span class="material-symbols-outlined text-amber-500 text-xl">notifications_active</span>
-                Важные объявления
-            </h2>
-            <a href="{% url 'notifications:list' %}" class="text-xs font-bold text-emerald-700 hover:underline">Все →</a>
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-[16px] bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-[36px]">partly_cloudy_day</span>
+                </div>
+                <div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-[32px] font-bold text-[#111827] leading-none">+18°C</span>
+                        <span class="text-[16px] font-semibold text-[#111827]">Облачно с прояснениями</span>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] mt-1">с. Кабанбай • Ощущается как +17°C</p>
+                </div>
+            </div>
         </div>
 
-        <div class="space-y-2.5">
-            {% if recent_announcements %}
-                {% for item in recent_announcements %}
-                    <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:shadow-md transition space-y-2">
-                        <div class="flex items-start justify-between gap-2">
-                            <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg text-xs font-bold">
-                                {% if item.category == 'ELECTRICITY' %}
-                                    <span class="material-symbols-outlined text-sm">bolt</span>
-                                {% elif item.category == 'WATER' %}
-                                    <span class="material-symbols-outlined text-sm">water_drop</span>
-                                {% elif item.category == 'ROADS' %}
-                                    <span class="material-symbols-outlined text-sm">construction</span>
-                                {% elif item.category == 'EMERGENCY' %}
-                                    <span class="material-symbols-outlined text-sm">warning</span>
-                                {% else %}
-                                    <span class="material-symbols-outlined text-sm">campaign</span>
-                                {% endif %}
-                                {{ item.get_category_display }}
-                            </span>
-                            <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"j E, H:i" }}</span>
-                        </div>
-                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                            {% if item.is_important %}
-                                <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded">ВАЖНО</span>
-                            {% endif %}
-                            {{ item.title }}
-                        </h3>
-                        <p class="text-xs text-slate-600 leading-relaxed line-clamp-2">
-                            {{ item.description }}
-                        </p>
-                        <div class="pt-1 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
-                            <span class="font-medium text-slate-500">📍 {{ item.village }}</span>
-                            <span class="text-amber-700 font-semibold">Официально</span>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <!-- Alert Card 1: Электричество -->
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:shadow-md transition space-y-2">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg text-xs font-bold">
-                            <span class="material-symbols-outlined text-sm">bolt</span>
-                            Электричество
-                        </span>
-                        <span class="text-[11px] font-semibold text-slate-400">30 июля, 09:00–18:00</span>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-sm">Плановое отключение электроэнергии</h3>
-                    <p class="text-xs text-slate-600 leading-relaxed">
-                        В связи с ремонтными работами на подстанции будет отключен свет на улицах Абая, Жамбыла и Ауэзова.
-                    </p>
-                    <div class="pt-1 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
-                        <span class="font-medium text-slate-500">📍 с. Кабанбай</span>
-                        <span class="text-amber-700 font-semibold">РЭС Алаколь</span>
-                    </div>
-                </div>
-
-                <!-- Alert Card 2: Вода -->
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:shadow-md transition space-y-2">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-900 px-2.5 py-1 rounded-lg text-xs font-bold">
-                            <span class="material-symbols-outlined text-sm">water_drop</span>
-                            Водоснабжение
-                        </span>
-                        <span class="text-[11px] font-semibold text-slate-400">29 июля, 10:00–14:00</span>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-sm">Временное отключение питьевой воды</h3>
-                    <p class="text-xs text-slate-600 leading-relaxed">
-                        Замена центрального водопровода. Просим жителей сделать необходимый запас воды.
-                    </p>
-                    <div class="pt-1 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
-                        <span class="font-medium text-slate-500">📍 с. Коктума</span>
-                        <span class="text-blue-700 font-semibold">Горводоканал</span>
-                    </div>
-                </div>
-            {% endif %}
+        <!-- Weather Stats Grid -->
+        <div class="grid grid-cols-3 gap-2 bg-[#F8FAFC] rounded-[16px] p-3 border border-[#E5E7EB]/60">
+            <div class="flex flex-col items-center text-center p-1">
+                <span class="material-symbols-rounded text-[20px] text-[#2563EB]">water_drop</span>
+                <span class="text-[14px] text-[#6B7280] mt-0.5">Влажность</span>
+                <span class="text-[16px] font-semibold text-[#111827]">65%</span>
+            </div>
+            <div class="flex flex-col items-center text-center p-1 border-x border-[#E5E7EB]">
+                <span class="material-symbols-rounded text-[20px] text-[#16A34A]">air</span>
+                <span class="text-[14px] text-[#6B7280] mt-0.5">Ветер</span>
+                <span class="text-[16px] font-semibold text-[#111827]">4 м/с</span>
+            </div>
+            <div class="flex flex-col items-center text-center p-1">
+                <span class="material-symbols-rounded text-[20px] text-[#0284C7]">rainy</span>
+                <span class="text-[14px] text-[#6B7280] mt-0.5">Осадки</span>
+                <span class="text-[16px] font-semibold text-[#111827]">0 мм</span>
+            </div>
         </div>
-    </div>
 
-    <!-- Основная сетка сервисов (4 ключевых раздела) -->
-    <div class="pt-2">
-        <h2 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-600 text-xl">apps</span>
-            Сервисы села
-        </h2>
-
-        <div class="grid grid-cols-2 gap-3">
-            <!-- Card 1: Поездки -->
-            <a href="/trips/" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:border-emerald-500 hover:shadow-md transition flex flex-col justify-between space-y-3 group">
-                <div class="flex items-center justify-between">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition">
-                        <span class="material-symbols-outlined text-2xl">directions_car</span>
-                    </div>
-                    <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">5 рейсов</span>
+        <!-- Hourly Forecast Horizontal Row -->
+        <div class="pt-1 border-t border-[#E5E7EB]">
+            <div class="text-[14px] font-medium text-[#6B7280] mb-2">Почасовой прогноз</div>
+            <div class="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <div class="flex flex-col items-center min-w-[56px] py-2 px-1 rounded-xl bg-[#F8FAFC]">
+                    <span class="text-[14px] text-[#6B7280]">09:00</span>
+                    <span class="material-symbols-rounded text-[22px] text-[#F59E0B] my-1">wb_sunny</span>
+                    <span class="text-[14px] font-semibold text-[#111827]">+14°</span>
                 </div>
-                <div>
-                    <h3 class="font-bold text-slate-900 text-sm group-hover:text-emerald-700 transition">Поездки и такси</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">Попутчики в город, такси и межгород</p>
+                <div class="flex flex-col items-center min-w-[56px] py-2 px-1 rounded-xl bg-[#DCFCE7] border border-[#16A34A]/30">
+                    <span class="text-[14px] text-[#16A34A] font-semibold">12:00</span>
+                    <span class="material-symbols-rounded text-[22px] text-[#D97706] my-1">partly_cloudy_day</span>
+                    <span class="text-[14px] font-bold text-[#16A34A]">+18°</span>
                 </div>
-            </a>
-
-            <!-- Card 2: Объявления -->
-            <a href="/ads/" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:border-blue-500 hover:shadow-md transition flex flex-col justify-between space-y-3 group">
-                <div class="flex items-center justify-between">
-                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center group-hover:scale-105 transition">
-                        <span class="material-symbols-outlined text-2xl">shopping_bag</span>
-                    </div>
-                    <span class="text-xs font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">12 новых</span>
+                <div class="flex flex-col items-center min-w-[56px] py-2 px-1 rounded-xl bg-[#F8FAFC]">
+                    <span class="text-[14px] text-[#6B7280]">15:00</span>
+                    <span class="material-symbols-rounded text-[22px] text-[#F59E0B] my-1">wb_sunny</span>
+                    <span class="text-[14px] font-semibold text-[#111827]">+20°</span>
                 </div>
-                <div>
-                    <h3 class="font-bold text-slate-900 text-sm group-hover:text-blue-700 transition">Объявления</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">Купля, продажа, скот, техника</p>
+                <div class="flex flex-col items-center min-w-[56px] py-2 px-1 rounded-xl bg-[#F8FAFC]">
+                    <span class="text-[14px] text-[#6B7280]">18:00</span>
+                    <span class="material-symbols-rounded text-[22px] text-[#D97706] my-1">partly_cloudy_day</span>
+                    <span class="text-[14px] font-semibold text-[#111827]">+17°</span>
                 </div>
-            </a>
-
-            <!-- Card 3: Оповещения -->
-            <a href="/notifications/" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:border-amber-500 hover:shadow-md transition flex flex-col justify-between space-y-3 group">
-                <div class="flex items-center justify-between">
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center group-hover:scale-105 transition">
-                        <span class="material-symbols-outlined text-2xl">bolt</span>
-                    </div>
-                    <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full">Важно</span>
+                <div class="flex flex-col items-center min-w-[56px] py-2 px-1 rounded-xl bg-[#F8FAFC]">
+                    <span class="text-[14px] text-[#6B7280]">21:00</span>
+                    <span class="material-symbols-rounded text-[22px] text-[#6366F1] my-1">clear_night</span>
+                    <span class="text-[14px] font-semibold text-[#111827]">+13°</span>
                 </div>
-                <div>
-                    <h3 class="font-bold text-slate-900 text-sm group-hover:text-amber-700 transition">Оповещения</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">Отключения, ремонт, акимат</p>
-                </div>
-            </a>
-
-            <!-- Card 4: Справочник -->
-            <a href="/directory/" class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs hover:border-purple-500 hover:shadow-md transition flex flex-col justify-between space-y-3 group">
-                <div class="flex items-center justify-between">
-                    <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center group-hover:scale-105 transition">
-                        <span class="material-symbols-outlined text-2xl">import_contacts</span>
-                    </div>
-                    <span class="text-xs font-bold text-purple-800 bg-purple-50 px-2 py-0.5 rounded-full">24 контакта</span>
-                </div>
-                <div>
-                    <h3 class="font-bold text-slate-900 text-sm group-hover:text-purple-700 transition">Справочник</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">Больница, школа, акимат, экстренные</p>
-                </div>
-            </a>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Лента аула -->
-    <div class="space-y-3 pt-2">
+    <!-- 2. Alerts Block (Блок "Оповещения") -->
+    <section class="bg-white rounded-[20px] p-5 border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)] space-y-3">
+        {% if recent_announcements %}
+            <!-- Show First/Important Active Announcement -->
+            {% with item=recent_announcements.0 %}
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[14px] font-bold bg-[#FEF3C7] text-[#92400E]">
+                        <span class="material-symbols-rounded text-[18px]">bolt</span>
+                        {{ item.get_category_display }}
+                    </span>
+                    <a href="{% url 'notifications:list' %}" class="text-[14px] font-semibold text-[#16A34A] hover:underline">Все →</a>
+                </div>
+                <h3 class="text-[18px] font-bold text-[#111827]">
+                    {% if item.is_important %}
+                        <span class="inline-block bg-red-100 text-red-700 text-[12px] font-extrabold px-2 py-0.5 rounded mr-1.5 align-middle">ВАЖНО</span>
+                    {% endif %}
+                    {{ item.title }}
+                </h3>
+                <p class="text-[14px] text-[#6B7280] leading-relaxed line-clamp-2">
+                    {{ item.description }}
+                </p>
+                <div class="pt-2 flex items-center justify-between text-[14px] text-[#6B7280] border-t border-[#E5E7EB]">
+                    <span>📍 {{ item.village }}</span>
+                    <span class="text-[#16A34A] font-semibold">{{ item.publish_date|date:"j E, H:i" }}</span>
+                </div>
+            </div>
+            {% endwith %}
+        {% else %}
+            <!-- Default "No Outages" State -->
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-[16px] bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-[28px]">check_circle</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-[#16A34A] animate-pulse"></span>
+                        <h3 class="text-[18px] font-bold text-[#111827]">Отключений нет</h3>
+                    </div>
+                    <p class="text-[14px] text-[#6B7280] mt-0.5">Свет, вода и газ работают в штатном режиме</p>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- 3. Лента аула (Title + Filter + Event Cards) -->
+    <section class="space-y-4">
+        <!-- Section Header -->
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <span class="material-symbols-outlined text-emerald-600 text-xl">rss_feed</span>
-                Лента аула
-            </h2>
-            <a href="/feed/" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-0.5 transition">
-                <span>Все</span>
-                <span class="text-sm">→</span>
-            </a>
+            <h2 class="text-[24px] font-bold text-[#111827]">Лента аула</h2>
+            <button type="button"
+                    @click="showFilters = !showFilters"
+                    class="p-2 rounded-xl border border-[#E5E7EB] bg-white text-[#6B7280] hover:text-[#16A34A] hover:border-[#16A34A] transition flex items-center gap-1.5 shadow-[0_2px_8px_rgba(15,23,42,0.05)] focus:outline-none"
+                    :class="showFilters ? 'bg-[#DCFCE7] border-[#16A34A] text-[#16A34A]' : ''">
+                <span class="material-symbols-rounded text-[22px]">tune</span>
+                <span class="text-[14px] font-semibold hidden sm:inline">Фильтр</span>
+            </button>
         </div>
 
-        <div class="space-y-2.5" x-data="{ expandedId: null }">
+        <!-- Interactive Filter Chips (Collapsible) -->
+        <div x-show="showFilters"
+             x-collapse
+             class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <button type="button"
+                    @click="activeFilter = 'all'"
+                    class="px-4 py-2 rounded-full text-[14px] font-semibold shrink-0 transition"
+                    :class="activeFilter === 'all' ? 'bg-[#16A34A] text-white shadow-xs' : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC]'">
+                Все
+            </button>
+            <button type="button"
+                    @click="activeFilter = 'notification'"
+                    class="px-4 py-2 rounded-full text-[14px] font-semibold shrink-0 transition flex items-center gap-1.5"
+                    :class="activeFilter === 'notification' ? 'bg-[#F59E0B] text-white shadow-xs' : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC]'">
+                <span class="material-symbols-rounded text-[18px]">bolt</span>
+                Оповещения
+            </button>
+            <button type="button"
+                    @click="activeFilter = 'trip'"
+                    class="px-4 py-2 rounded-full text-[14px] font-semibold shrink-0 transition flex items-center gap-1.5"
+                    :class="activeFilter === 'trip' ? 'bg-[#16A34A] text-white shadow-xs' : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC]'">
+                <span class="material-symbols-rounded text-[18px]">directions_car</span>
+                Поездки
+            </button>
+            <button type="button"
+                    @click="activeFilter = 'ad'"
+                    class="px-4 py-2 rounded-full text-[14px] font-semibold shrink-0 transition flex items-center gap-1.5"
+                    :class="activeFilter === 'ad' ? 'bg-[#2563EB] text-white shadow-xs' : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC]'">
+                <span class="material-symbols-rounded text-[18px]">shopping_bag</span>
+                Объявления
+            </button>
+            <button type="button"
+                    @click="activeFilter = 'directory'"
+                    class="px-4 py-2 rounded-full text-[14px] font-semibold shrink-0 transition flex items-center gap-1.5"
+                    :class="activeFilter === 'directory' ? 'bg-[#9333EA] text-white shadow-xs' : 'bg-white border border-[#E5E7EB] text-[#6B7280] hover:bg-[#F8FAFC]'">
+                <span class="material-symbols-rounded text-[18px]">import_contacts</span>
+                Справочник
+            </button>
+        </div>
+
+        <!-- Feed List -->
+        <div class="space-y-4">
             {% if recent_events %}
                 {% for event in recent_events %}
-                    {% include "feed/feed_card.html" with event=event %}
+                    <div x-show="activeFilter === 'all' || activeFilter === '{{ event.type }}'">
+                        {% include "feed/feed_card.html" with event=event %}
+                    </div>
                 {% endfor %}
             {% else %}
-                <!-- Fallback Feed items (5 items) -->
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">directions_car</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <a href="/trips/" class="font-bold text-slate-900 text-sm hover:text-emerald-700">Кабанбай → Талдыкорган</a>
-                                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">2 места</span>
-                            </div>
-                            <div class="text-xs text-slate-500 mt-0.5">Сегодня, 16:00 • 2 000 ₸</div>
-                        </div>
-                    </div>
-                    <a href="tel:+77001234567" class="w-10 h-10 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 transition active:scale-90" title="Позвонить водителю">
-                        <span class="material-symbols-outlined text-xl">call</span>
-                    </a>
-                </div>
-
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">bolt</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <a href="/notifications/" class="font-bold text-slate-900 text-sm hover:text-amber-700">Отключение электроэнергии</a>
-                                <span class="text-xs bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full">30 июля</span>
-                            </div>
-                            <div class="text-xs text-slate-500 mt-0.5">с. Кабанбай • Ремонт на подстанции</div>
-                        </div>
-                    </div>
-                    <a href="/notifications/" class="w-10 h-10 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 transition" title="Подробнее">
-                        <span class="material-symbols-outlined text-xl">chevron_right</span>
-                    </a>
-                </div>
-
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">shopping_bag</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <a href="/ads/" class="font-bold text-slate-900 text-sm hover:text-blue-700">Горный велосипед Forward</a>
-                                <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">25 000 ₸</span>
-                            </div>
-                            <div class="text-xs text-slate-500 mt-0.5">Кабанбай • Состояние отличное</div>
-                        </div>
-                    </div>
-                    <a href="tel:+77009998877" class="w-10 h-10 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 transition active:scale-90" title="Связаться с продавцом">
-                        <span class="material-symbols-outlined text-xl">call</span>
-                    </a>
-                </div>
-
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">plumbing</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <a href="/directory/" class="font-bold text-slate-900 text-sm hover:text-purple-700">Сантехник Арман</a>
-                                <span class="text-xs bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-full">Услуги</span>
-                            </div>
-                            <div class="text-xs text-slate-500 mt-0.5">Ремонт труб, отопления и насосов</div>
-                        </div>
-                    </div>
-                    <a href="tel:+77000000002" class="w-10 h-10 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 transition active:scale-90" title="Вызов мастера">
-                        <span class="material-symbols-outlined text-xl">call</span>
-                    </a>
-                </div>
-
-                <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-2xl">directions_car</span>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-1.5">
-                                <a href="/trips/" class="font-bold text-slate-900 text-sm hover:text-emerald-700">Коктума → Алматы</a>
-                                <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">5 000 ₸</span>
-                            </div>
-                            <div class="text-xs text-slate-500 mt-0.5">Завтра, 08:00 • 1 место</div>
-                        </div>
-                    </div>
-                    <a href="tel:+77001234568" class="w-10 h-10 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 transition active:scale-90" title="Позвонить водителю">
-                        <span class="material-symbols-outlined text-xl">call</span>
-                    </a>
+                <div class="bg-white rounded-[20px] p-6 text-center border border-[#E5E7EB] shadow-[0_2px_8px_rgba(15,23,42,0.05)]">
+                    <span class="material-symbols-rounded text-[40px] text-[#6B7280] mb-2">rss_feed</span>
+                    <p class="text-[16px] font-medium text-[#111827]">Лента аула пока пуста</p>
+                    <p class="text-[14px] text-[#6B7280] mt-1">Будьте первым, кто предложит поездку или подаст объявление!</p>
                 </div>
             {% endif %}
         </div>
-    </div>
+    </section>
 
 </div>
 {% endblock %}

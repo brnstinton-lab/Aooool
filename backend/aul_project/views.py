@@ -169,3 +169,8 @@ def profile_view(request):
     """Страница профиля пользователя"""
     return render(request, 'profile.html')
 
+
+def services_view(request):
+    """Страница всех сервисов села"""
+    return render(request, 'services.html')
+

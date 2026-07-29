@@ -8,7 +8,7 @@
     <div class="bg-blue-50 rounded-2xl p-4 border border-blue-200/80 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <span class="material-symbols-outlined text-2xl">shopping_bag</span>
+                <span class="material-symbols-rounded text-2xl">shopping_bag</span>
             </div>
             <div>
                 <h1 class="text-lg font-bold text-blue-950">🛒 Частные объявления</h1>
@@ -16,7 +16,7 @@
             </div>
         </div>
         <a href="{% url 'ads:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-2 rounded-xl shrink-0 transition active:scale-95 shadow-xs flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">add</span>
+            <span class="material-symbols-rounded text-sm">add</span>
             Подать
         </a>
     </div>
@@ -61,11 +61,11 @@
 
                 <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">
                     <div class="flex items-center gap-1.5 text-slate-500">
-                        <span class="material-symbols-outlined text-sm">call</span>
+                        <span class="material-symbols-rounded text-sm">call</span>
                         <span class="font-medium text-slate-700">{{ item.phone }}</span>
                     </div>
                     <a href="tel:{{ item.phone }}" class="bg-blue-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 hover:bg-blue-700 active:scale-95 transition">
-                        <span class="material-symbols-outlined text-sm">call</span>
+                        <span class="material-symbols-rounded text-sm">call</span>
                         Позвонить
                     </a>
                 </div>
@@ -74,12 +74,12 @@
         {% else %}
             <div class="bg-white rounded-2xl p-6 border border-slate-200 text-center space-y-3">
                 <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <span class="material-symbols-outlined text-2xl">shopping_bag</span>
+                    <span class="material-symbols-rounded text-2xl">shopping_bag</span>
                 </div>
                 <p class="text-sm font-bold text-slate-700">Пока нет объявлений.</p>
                 <div>
                     <a href="{% url 'ads:create' %}" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-xs active:scale-95">
-                        <span class="material-symbols-outlined text-sm">add</span>
+                        <span class="material-symbols-rounded text-sm">add</span>
                         Подать объявление
                     </a>
                 </div>

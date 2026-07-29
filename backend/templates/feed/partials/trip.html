@@ -1,46 +1,36 @@
-<div class="space-y-3 pt-1">
-    <!-- Route Header Banner -->
-    <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl p-3 shadow-xs">
-        <div class="text-[11px] font-semibold text-emerald-100 uppercase tracking-wider mb-0.5">Маршрут поездки</div>
-        <div class="font-black text-base flex items-center gap-2">
-            <span>{{ details.from_location }}</span>
-            <span class="material-symbols-outlined text-sm">arrow_forward</span>
-            <span>{{ details.to_location }}</span>
-        </div>
-    </div>
-
+<div class="space-y-3 pt-2">
     <!-- Trip Details Grid -->
-    <div class="grid grid-cols-2 gap-2 text-xs">
-        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-600 text-base">event</span>
+    <div class="grid grid-cols-2 gap-2 text-[14px]">
+        <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#E5E7EB] flex items-center gap-2.5">
+            <span class="material-symbols-rounded text-[#16A34A] text-[20px]">event</span>
             <div>
-                <span class="text-[10px] text-slate-500 block uppercase font-bold">Дата и время</span>
-                <span class="font-semibold text-slate-800">{{ details.trip_date_str }}{% if details.departure_time_str %}, {{ details.departure_time_str }}{% endif %}</span>
+                <span class="text-[14px] text-[#6B7280] block">Дата</span>
+                <span class="font-semibold text-[#111827]">{{ details.trip_date_str }}{% if details.departure_time_str %}, {{ details.departure_time_str }}{% endif %}</span>
             </div>
         </div>
 
-        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-600 text-base">payments</span>
+        <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#E5E7EB] flex items-center gap-2.5">
+            <span class="material-symbols-rounded text-[#16A34A] text-[20px]">payments</span>
             <div>
-                <span class="text-[10px] text-slate-500 block uppercase font-bold">Стоимость</span>
-                <span class="font-bold text-emerald-700">{{ details.price_str }}</span>
+                <span class="text-[14px] text-[#6B7280] block">Цена</span>
+                <span class="font-bold text-[#16A34A]">{{ details.price_str }}</span>
             </div>
         </div>
 
-        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-            <span class="material-symbols-outlined text-emerald-600 text-base">person</span>
+        <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#E5E7EB] flex items-center gap-2.5">
+            <span class="material-symbols-rounded text-[#16A34A] text-[20px]">person</span>
             <div>
-                <span class="text-[10px] text-slate-500 block uppercase font-bold">Водитель</span>
-                <span class="font-semibold text-slate-800">{{ details.driver_name }}</span>
+                <span class="text-[14px] text-[#6B7280] block">Водитель</span>
+                <span class="font-semibold text-[#111827]">{{ details.driver_name }}</span>
             </div>
         </div>
 
         {% if details.seats_available %}
-            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center gap-2">
-                <span class="material-symbols-outlined text-emerald-600 text-base">airline_seat_recline_normal</span>
+            <div class="bg-[#F8FAFC] p-3 rounded-xl border border-[#E5E7EB] flex items-center gap-2.5">
+                <span class="material-symbols-rounded text-[#16A34A] text-[20px]">airline_seat_recline_normal</span>
                 <div>
-                    <span class="text-[10px] text-slate-500 block uppercase font-bold">Свободно мест</span>
-                    <span class="font-bold text-emerald-700">{{ details.seats_available }} {{ details.seats_available|pluralize:"место,места,мест" }}</span>
+                    <span class="text-[14px] text-[#6B7280] block">Места</span>
+                    <span class="font-bold text-[#16A34A]">{{ details.seats_available }} {{ details.seats_available|pluralize:"место,места,мест" }}</span>
                 </div>
             </div>
         {% endif %}
@@ -48,8 +38,8 @@
 
     <!-- Comment -->
     {% if details.comment %}
-        <div class="text-xs text-slate-700 bg-slate-50/90 p-3 rounded-xl border border-slate-100">
-            <span class="font-bold text-slate-900 block text-[11px] uppercase tracking-wider mb-1">Комментарий водителя:</span>
+        <div class="text-[14px] text-[#111827] bg-[#F8FAFC] p-3 rounded-xl border border-[#E5E7EB]">
+            <span class="font-semibold text-[#6B7280] block text-[14px] mb-1">Комментарий водителя:</span>
             <p class="leading-relaxed whitespace-pre-line">{{ details.comment }}</p>
         </div>
     {% endif %}
@@ -57,8 +47,8 @@
     <!-- Phone Call Button -->
     {% if details.phone %}
         <div class="pt-1">
-            <a href="tel:{{ details.phone }}" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xs transition">
-                <span class="material-symbols-outlined text-base">call</span>
+            <a href="tel:{{ details.phone }}" class="w-full bg-[#16A34A] hover:bg-[#15803D] active:scale-[0.98] text-white font-semibold text-[14px] py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-xs">
+                <span class="material-symbols-rounded text-[20px]">call</span>
                 <span>Позвонить водителю ({{ details.phone }})</span>
             </a>
         </div>
