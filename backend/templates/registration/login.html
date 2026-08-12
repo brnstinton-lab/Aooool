@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Вход в аккаунт{% endblock %}
+
+{% block content %}
+<div class="space-y-4 pb-6">
+
+    <!-- Заголовок -->
+    <div class="text-center pt-2 pb-1">
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Вход в AUL</h1>
+        <p class="text-xs text-slate-500 mt-1">Войдите в личный кабинет жителя аула</p>
+    </div>
+
+    <!-- Карточка формы входа -->
+    <div class="bg-white rounded-[20px] p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4">
+        <form method="post" action="{% url 'login' %}" class="space-y-4">
+            {% csrf_token %}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium space-y-1">
+                    {% for error in form.non_field_errors %}
+                        <p class="flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm">error</span>
+                            <span>{{ error }}</span>
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Email или имя пользователя -->
+            <div class="space-y-1.5">
+                <label for="{{ form.login_input.id_for_label }}" class="block text-xs font-bold text-slate-700">Email или имя пользователя</label>
+                {{ form.login_input }}
+                {% if form.login_input.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.login_input.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Пароль -->
+            <div class="space-y-1.5">
+                <label for="{{ form.password.id_for_label }}" class="block text-xs font-bold text-slate-700">Пароль</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Кнопка войти -->
+            <div class="pt-2">
+                <button type="submit" 
+                        class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs">
+                    <span class="material-symbols-rounded text-base">login</span>
+                    <span>Войти</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Ссылка на Регистрацию -->
+        <div class="pt-3 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500">
+                Нет аккаунта? 
+                <a href="{% url 'register' %}" class="font-bold text-emerald-600 hover:text-emerald-700 transition">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

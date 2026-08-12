@@ -39,11 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Приложения проекта AUL
+    'apps.users',
     'apps.notifications',
     'apps.trips',
     'apps.ads',
     'apps.directory',
 ]
+
+# Кастомная модель пользователя
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -113,13 +117,19 @@ USE_TZ = True
 
 
 # Статические файлы (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Медиа файлы (загружаемые пользователем фотографии)
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Тип первичных ключей по умолчанию
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Авторизация и редиректы
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'login'
+

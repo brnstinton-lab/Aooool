@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django import forms
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -6,6 +10,38 @@ from apps.notifications.models import Announcement
 from apps.trips.models import Trip
 from apps.ads.models import Ad
 from .services import FeedAggregator, get_relative_time_str
+
+User = get_user_model()
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone']
+        labels = {
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'email': 'Email',
+            'phone': 'Номер телефона',
+        }
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
+                'placeholder': 'Введите имя'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
+                'placeholder': 'Введите фамилию'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
+                'placeholder': 'example@aul.kz'
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
+                'placeholder': '+7 (7XX) XXX-XX-XX'
+            }),
+        }
 
 
 # Демо-данные для поиска и ленты (до полного подключения всех Django-моделей БД)
@@ -165,9 +201,64 @@ def search_view(request):
     return render(request, 'search.html', context)
 
 
+@login_required
 def profile_view(request):
     """Страница профиля пользователя"""
-    return render(request, 'profile.html')
+    user = request.user
+    role = getattr(user, 'role', 'resident')
+    role_display = user.get_role_display() if hasattr(user, 'get_role_display') else 'Житель'
+    display_name = user.get_full_name() or user.username or 'Житель аула'
+    user_email = user.email or ''
+    user_phone = getattr(user, 'phone', '') or request.session.get('user_phone', '')
+    user_village = request.session.get('user_village', 'Кабанбай')
+
+    context = {
+        'profile_user': user,
+        'user_role': role,
+        'role_display': role_display,
+        'display_name': display_name,
+        'user_phone': user_phone,
+        'user_email': user_email,
+        'user_village': user_village,
+    }
+    return render(request, 'profile.html', context)
+
+
+@login_required
+def profile_edit_view(request):
+    """Страница и обработка редактирования профиля пользователя (стандартный Django ModelForm + POST)"""
+    user = request.user
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            # Обновляем сессионные данные
+            request.session['user_first_name'] = user.first_name
+            request.session['user_last_name'] = user.last_name
+            request.session['user_email'] = user.email
+            if hasattr(user, 'phone'):
+                request.session['user_phone'] = user.phone
+            if 'village' in request.POST:
+                request.session['user_village'] = request.POST.get('village', '').strip()
+
+            messages.success(request, 'Профиль успешно обновлён.')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=user)
+
+    user_phone = getattr(user, 'phone', '') or request.session.get('user_phone', '')
+    user_village = request.session.get('user_village', 'Кабанбай')
+
+    context = {
+        'form': form,
+        'profile_user': user,
+        'user_phone': user_phone,
+        'user_village': user_village,
+        'village_options': ['Кабанбай', 'Коктума', 'Аксу', 'Ушарал', 'Достык'],
+    }
+    return render(request, 'profile_edit.html', context)
+
 
 
 def services_view(request):

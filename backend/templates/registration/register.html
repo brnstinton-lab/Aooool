@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Регистрация{% endblock %}
+
+{% block content %}
+<div class="space-y-4 pb-6">
+
+    <!-- Заголовок -->
+    <div class="text-center pt-2 pb-1">
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Регистрация в AUL</h1>
+        <p class="text-xs text-slate-500 mt-1">Присоединяйтесь к единой цифровой экосистеме аула</p>
+    </div>
+
+    <!-- Карточка формы регистрации -->
+    <div class="bg-white rounded-[20px] p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4">
+        <form method="post" action="{% url 'register' %}" class="space-y-4">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium space-y-1">
+                    {% for error in form.non_field_errors %}
+                        <p class="flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm">error</span>
+                            <span>{{ error }}</span>
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <!-- Имя -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-xs font-bold text-slate-700">Имя <span class="text-red-500">*</span></label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Фамилия -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-xs font-bold text-slate-700">Фамилия</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Номер телефона -->
+            <div class="space-y-1.5">
+                <label for="{{ form.phone.id_for_label }}" class="block text-xs font-bold text-slate-700">Номер телефона</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.phone.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-1.5">
+                <label for="{{ form.email.id_for_label }}" class="block text-xs font-bold text-slate-700">Email <span class="text-red-500">*</span></label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <!-- Пароль -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.password1.id_for_label }}" class="block text-xs font-bold text-slate-700">Пароль <span class="text-red-500">*</span></label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Повторите пароль -->
+                <div class="space-y-1.5">
+                    <label for="{{ form.password2.id_for_label }}" class="block text-xs font-bold text-slate-700">Повторите пароль <span class="text-red-500">*</span></label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Информационный блок о роли -->
+            <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80 text-[11px] text-emerald-800 flex items-center gap-2">
+                <span class="material-symbols-rounded text-base text-emerald-600 shrink-0">info</span>
+                <span>Регистрация автоматически присваивает статус <strong>Житель аула</strong>.</span>
+            </div>
+
+            <!-- Кнопка отправить -->
+            <div class="pt-2">
+                <button type="submit" 
+                        class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs">
+                    <span class="material-symbols-rounded text-base">person_add</span>
+                    <span>Зарегистрироваться</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Ссылка на Вход -->
+        <div class="pt-3 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500">
+                Уже есть аккаунт? 
+                <a href="{% url 'login' %}" class="font-bold text-emerald-600 hover:text-emerald-700 transition">Войти</a>
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
