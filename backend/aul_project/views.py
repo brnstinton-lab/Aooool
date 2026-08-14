@@ -9,6 +9,7 @@ from django.utils.formats import date_format
 from apps.notifications.models import Announcement
 from apps.trips.models import Trip
 from apps.ads.models import Ad
+from apps.users.models import RoleRequest
 from .services import FeedAggregator, get_relative_time_str
 
 User = get_user_model()
@@ -212,6 +213,20 @@ def profile_view(request):
     user_phone = getattr(user, 'phone', '') or request.session.get('user_phone', '')
     user_village = request.session.get('user_village', 'Кабанбай')
 
+    master_request_pending = RoleRequest.objects.filter(
+        user=user,
+        requested_role=RoleRequest.RequestedRole.MASTER,
+        status=RoleRequest.Status.PENDING
+    ).first()
+
+    master_request_rejected = None
+    if not master_request_pending:
+        master_request_rejected = RoleRequest.objects.filter(
+            user=user,
+            requested_role=RoleRequest.RequestedRole.MASTER,
+            status=RoleRequest.Status.REJECTED
+        ).order_by('-created_at').first()
+
     context = {
         'profile_user': user,
         'user_role': role,
@@ -220,6 +235,8 @@ def profile_view(request):
         'user_phone': user_phone,
         'user_email': user_email,
         'user_village': user_village,
+        'master_request_pending': master_request_pending,
+        'master_request_rejected': master_request_rejected,
     }
     return render(request, 'profile.html', context)
 

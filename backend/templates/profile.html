@@ -98,7 +98,30 @@
         </a>
     </div>
 
-    <!-- 4. Карточка "Стать мастером" -->
+    <!-- 4. Карточка "Стать мастером" / "Вы мастер" -->
+    {% if user_role == 'master' %}
+    <div class="bg-white rounded-[20px] p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                    <span class="material-symbols-rounded text-2xl">verified_user</span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-bold text-slate-900">Вы мастер</h3>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Активен
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                        Ваш профиль доступен жителям аула как профиль мастера.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
     <div class="bg-white rounded-[20px] p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3 hover:border-slate-300 transition">
         <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-3.5">
@@ -108,19 +131,33 @@
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Стать мастером</h3>
                     <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                        Предлагайте свои ремонтные, строительные и бытовые услуги жителям аула.
+                        {% if master_request_pending %}
+                            Ваша заявка отправлена и находится на рассмотрении администратором.
+                        {% elif master_request_rejected %}
+                            Заявка отклонена. Вы можете подать новую заявку.
+                        {% else %}
+                            Предлагайте свои ремонтные, строительные и бытовые услуги жителям аула.
+                        {% endif %}
                     </p>
                 </div>
             </div>
         </div>
         <div class="flex items-center justify-between pt-2 border-t border-slate-100">
             <span class="text-[11px] font-medium text-slate-400">Частные мастера и специалисты</span>
-            <button @click="showToast('Заявка мастера открыта')" type="button" class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition flex items-center gap-1 shrink-0">
-                <span>Подать заявку</span>
-                <span class="material-symbols-rounded text-base">chevron_right</span>
-            </button>
+            {% if master_request_pending %}
+                <span class="px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200/80 text-xs font-bold flex items-center gap-1.5 shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>На рассмотрении</span>
+                </span>
+            {% else %}
+                <a href="{% url 'profile_master_request' %}" class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-800 text-xs font-bold transition flex items-center gap-1 shrink-0">
+                    <span>Подать заявку</span>
+                    <span class="material-symbols-rounded text-base">chevron_right</span>
+                </a>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 
     <!-- 5. Карточка "Организация" -->
     <div class="bg-white rounded-[20px] p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-3 hover:border-slate-300 transition">

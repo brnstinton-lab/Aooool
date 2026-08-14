@@ -118,3 +118,67 @@ class UserLoginForm(forms.Form):
             'placeholder': 'Введите пароль'
         })
     )
+
+
+SPECIALIZATION_CHOICES = [
+    ("Электрик", "Электрик"),
+    ("Сантехник", "Сантехник"),
+    ("Строитель", "Строитель"),
+    ("Сварщик", "Сварщик"),
+    ("Автомеханик", "Автомеханик"),
+    ("Мастер по ремонту техники", "Мастер по ремонту техники"),
+    ("Парикмахер", "Парикмахер"),
+    ("Швея", "Швея"),
+    ("Уборка", "Уборка"),
+    ("Другое", "Другое"),
+]
+
+EXPERIENCE_CHOICES = [
+    ("Без опыта", "Без опыта"),
+    ("До 1 года", "До 1 года"),
+    ("1–3 года", "1–3 года"),
+    ("3–5 лет", "3–5 лет"),
+    ("Более 5 лет", "Более 5 лет"),
+]
+
+
+class MasterRequestForm(forms.Form):
+    specialization = forms.ChoiceField(
+        label="Специализация",
+        choices=SPECIALIZATION_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition'
+        })
+    )
+    experience = forms.ChoiceField(
+        label="Опыт работы",
+        choices=EXPERIENCE_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition'
+        })
+    )
+    phone = forms.CharField(
+        label="Телефон",
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
+            'placeholder': '+7 (7XX) XXX-XX-XX'
+        })
+    )
+    description = forms.CharField(
+        label="Описание услуг",
+        required=False,
+        widget=forms.Textarea(attrs={
+            'rows': 4,
+            'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
+            'placeholder': 'Опишите, какие услуги вы оказываете, в каких районах работаете и т.д.'
+        })
+    )
+
+    def get_formatted_comment(self):
+        spec = self.cleaned_data.get('specialization')
+        exp = self.cleaned_data.get('experience')
+        phone = self.cleaned_data.get('phone')
+        desc = self.cleaned_data.get('description', '').strip()
+        return f"Специализация: {spec}\nОпыт работы: {exp}\nТелефон: {phone}\nОписание:\n{desc}"
+

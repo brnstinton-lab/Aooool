@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .forms import UserRegistrationForm, UserLoginForm
+from .forms import UserRegistrationForm, UserLoginForm, MasterRequestForm
+from .models import Role, RoleRequest
 
 User = get_user_model()
 
@@ -72,3 +74,57 @@ def logout_view(request):
         logout(request)
         messages.info(request, 'Вы вышли из системы.')
     return redirect('login')
+
+
+@login_required
+def master_request_view(request):
+    """Подача заявки на получение роли 'Мастер'"""
+    user = request.user
+
+    # 1. Если пользователь уже зарегистрирован как мастер
+    if getattr(user, 'role', '') == Role.MASTER:
+        messages.info(request, "Вы уже зарегистрированы как мастер.")
+        return redirect('profile')
+
+    # 2. Если уже есть активная заявка на рассмотрении
+    pending_request = RoleRequest.objects.filter(
+        user=user,
+        status=RoleRequest.Status.PENDING
+    ).first()
+
+    if pending_request:
+        messages.warning(request, "Ваша заявка уже находится на рассмотрении.")
+        return redirect('profile')
+
+    if request.method == 'POST':
+        form = MasterRequestForm(request.POST)
+        if form.is_valid():
+            comment_text = form.get_formatted_comment()
+
+            # Обновляем телефон пользователя, если был изменен
+            phone_input = form.cleaned_data.get('phone', '').strip()
+            if phone_input and user.phone != phone_input:
+                user.phone = phone_input
+                user.save(update_fields=['phone'])
+
+            # Создаем заявку с гарантированной ролью MASTER
+            RoleRequest.objects.create(
+                user=user,
+                requested_role=RoleRequest.RequestedRole.MASTER,
+                status=RoleRequest.Status.PENDING,
+                comment=comment_text
+            )
+
+            messages.success(request, "Заявка отправлена и ожидает рассмотрения администратора.")
+            return redirect('profile')
+    else:
+        initial_data = {}
+        if getattr(user, 'phone', ''):
+            initial_data['phone'] = user.phone
+        form = MasterRequestForm(initial=initial_data)
+
+    return render(request, 'profile/master_request.html', {
+        'form': form,
+        'user': user
+    })
+
