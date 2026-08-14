@@ -1,15 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Ad, AdImage
 
 
 def ad_list(request):
-    """Отображение списка объявлений"""
+    """Отображение списка объявлений (доступно всем)"""
     ads = Ad.objects.active().prefetch_related('images')
     return render(request, 'ads/list.html', {'ads': ads})
 
 
+@login_required
 def ad_create(request):
-    """Создание нового объявления"""
+    """Создание нового объявления (требует авторизации)"""
     errors = {}
     form_data = {}
 
@@ -82,6 +85,7 @@ def ad_create(request):
 
         if not errors:
             ad = Ad.objects.create(
+                user=request.user,
                 title=title,
                 ad_type=ad_type,
                 category=category,
@@ -101,7 +105,8 @@ def ad_create(request):
                         image=image
                     )
 
-            return redirect('feed')
+            messages.success(request, 'Объявление успешно опубликовано.')
+            return redirect('ads:list')
 
     return render(request, 'ads/create.html', {
         'ad_types': Ad.AdType.choices,
@@ -109,5 +114,76 @@ def ad_create(request):
         'errors': errors,
         'form_data': form_data,
     })
+
+
+@login_required
+def ad_edit(request, ad_id):
+    """Редактирование объявления (только автор или администратор)"""
+    ad = get_object_or_404(Ad, id=ad_id)
+    if ad.user and ad.user != request.user and not request.user.is_staff:
+        messages.error(request, "У вас нет прав для редактирования этого объявления.")
+        return redirect('ads:list')
+
+    errors = {}
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        price_raw = request.POST.get('price', '').strip()
+
+        if not title:
+            errors['title'] = 'Укажите заголовок объявления'
+        if not description:
+            errors['description'] = 'Укажите описание объявления'
+        if not phone:
+            errors['phone'] = 'Укажите номер телефона'
+
+        price = None
+        if price_raw:
+            try:
+                price = int(price_raw)
+            except ValueError:
+                errors['price'] = 'Укажите цену числом'
+
+        if not errors:
+            ad.title = title
+            ad.description = description
+            ad.phone = phone
+            ad.price = price
+            ad.save()
+            messages.success(request, 'Объявление успешно обновлено.')
+            return redirect('ads:list')
+
+    return render(request, 'ads/create.html', {
+        'ad_types': Ad.AdType.choices,
+        'categories': Ad.Category.choices,
+        'errors': errors,
+        'form_data': {
+            'title': ad.title,
+            'ad_type': ad.ad_type,
+            'category': ad.category,
+            'description': ad.description,
+            'phone': ad.phone,
+            'price': ad.price or '',
+            'comment': ad.comment,
+        },
+        'is_edit': True,
+        'ad': ad,
+    })
+
+
+@login_required
+def ad_delete(request, ad_id):
+    """Удаление объявления (только автор или администратор)"""
+    ad = get_object_or_404(Ad, id=ad_id)
+    if ad.user and ad.user != request.user and not request.user.is_staff:
+        messages.error(request, "У вас нет прав для удаления этого объявления.")
+        return redirect('ads:list')
+
+    if request.method == 'POST':
+        ad.delete()
+        messages.success(request, "Объявление успешно удалено.")
+    return redirect('ads:list')
+
 
 

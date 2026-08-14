@@ -6,5 +6,7 @@ app_name = 'ads'
 urlpatterns = [
     path('', views.ad_list, name='list'),
     path('create/', views.ad_create, name='create'),
+    path('<int:ad_id>/edit/', views.ad_edit, name='edit'),
+    path('<int:ad_id>/delete/', views.ad_delete, name='delete'),
 ]
 

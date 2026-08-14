@@ -202,9 +202,11 @@ def search_view(request):
     return render(request, 'search.html', context)
 
 
-@login_required
 def profile_view(request):
-    """Страница профиля пользователя"""
+    """Страница профиля пользователя (открыта для гостей, расширена для авторизованных)"""
+    if not request.user.is_authenticated:
+        return render(request, 'profile_guest.html')
+
     user = request.user
     role = getattr(user, 'role', 'resident')
     role_display = user.get_role_display() if hasattr(user, 'get_role_display') else 'Житель'
@@ -212,6 +214,9 @@ def profile_view(request):
     user_email = user.email or ''
     user_phone = getattr(user, 'phone', '') or request.session.get('user_phone', '')
     user_village = request.session.get('user_village', 'Кабанбай')
+
+    my_ads_count = Ad.objects.filter(user=user, status=Ad.Status.ACTIVE).count()
+    my_trips_count = Trip.objects.filter(user=user, status=Trip.Status.ACTIVE).count()
 
     master_request_pending = RoleRequest.objects.filter(
         user=user,
@@ -227,6 +232,20 @@ def profile_view(request):
             status=RoleRequest.Status.REJECTED
         ).order_by('-created_at').first()
 
+    org_request_pending = RoleRequest.objects.filter(
+        user=user,
+        requested_role=RoleRequest.RequestedRole.ORGANIZATION,
+        status=RoleRequest.Status.PENDING
+    ).first()
+
+    org_request_rejected = None
+    if not org_request_pending:
+        org_request_rejected = RoleRequest.objects.filter(
+            user=user,
+            requested_role=RoleRequest.RequestedRole.ORGANIZATION,
+            status=RoleRequest.Status.REJECTED
+        ).order_by('-created_at').first()
+
     context = {
         'profile_user': user,
         'user_role': role,
@@ -235,8 +254,12 @@ def profile_view(request):
         'user_phone': user_phone,
         'user_email': user_email,
         'user_village': user_village,
+        'my_ads_count': my_ads_count,
+        'my_trips_count': my_trips_count,
         'master_request_pending': master_request_pending,
         'master_request_rejected': master_request_rejected,
+        'org_request_pending': org_request_pending,
+        'org_request_rejected': org_request_rejected,
     }
     return render(request, 'profile.html', context)
 

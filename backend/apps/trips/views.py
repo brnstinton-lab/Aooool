@@ -1,18 +1,21 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.utils import timezone
 from .models import Trip
 
 
 def trip_list(request):
-    """Отображение списка актуальных (непросроченных) поездок"""
+    """Отображение списка актуальных (непросроченных) поездок (доступно всем)"""
     trips = Trip.objects.upcoming()
     return render(request, 'trips/list.html', {
         'trips': trips
     })
 
 
+@login_required
 def trip_create(request):
-    """Создание новой поездки"""
+    """Создание новой поездки (требует авторизации)"""
     errors = {}
     form_data = {}
     today_str = timezone.localtime(timezone.now()).strftime('%Y-%m-%d')
@@ -40,7 +43,7 @@ def trip_create(request):
             'comment': comment,
         }
 
-        # Валидация обязательных полей: Имя, Телефон, Откуда, Куда, Дата поездки, Время отправления
+        # Валидация обязательных полей
         if not driver_name:
             errors['driver_name'] = 'Укажите ваше имя'
         if not phone:
@@ -85,6 +88,7 @@ def trip_create(request):
 
         if not errors and trip_date and departure_time:
             Trip.objects.create(
+                user=request.user,
                 driver_name=driver_name,
                 phone=phone,
                 from_location=from_location,
@@ -96,6 +100,7 @@ def trip_create(request):
                 comment=comment,
                 status=Trip.Status.ACTIVE,
             )
+            messages.success(request, 'Поездка успешно опубликована.')
             return redirect('trips:list')
 
     return render(request, 'trips/create.html', {
@@ -103,5 +108,75 @@ def trip_create(request):
         'form_data': form_data,
         'today_str': today_str,
     })
+
+
+@login_required
+def trip_edit(request, trip_id):
+    """Редактирование поездки (только автор или администратор)"""
+    trip = get_object_or_404(Trip, id=trip_id)
+    if trip.user and trip.user != request.user and not request.user.is_staff:
+        messages.error(request, "У вас нет прав для редактирования этой поездки.")
+        return redirect('trips:list')
+
+    errors = {}
+    today_str = timezone.localtime(timezone.now()).strftime('%Y-%m-%d')
+    if request.method == 'POST':
+        driver_name = request.POST.get('driver_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        from_location = request.POST.get('from_location', '').strip()
+        to_location = request.POST.get('to_location', '').strip()
+        trip_date_str = request.POST.get('trip_date', '').strip()
+        departure_time_str = request.POST.get('departure_time', '').strip()
+
+        if not driver_name:
+            errors['driver_name'] = 'Укажите ваше имя'
+        if not phone:
+            errors['phone'] = 'Укажите номер телефона'
+        if not from_location:
+            errors['from_location'] = 'Укажите пункт отправления'
+        if not to_location:
+            errors['to_location'] = 'Укажите пункт назначения'
+
+        if not errors:
+            trip.driver_name = driver_name
+            trip.phone = phone
+            trip.from_location = from_location
+            trip.to_location = to_location
+            trip.save()
+            messages.success(request, 'Поездка успешно обновлена.')
+            return redirect('trips:list')
+
+    return render(request, 'trips/create.html', {
+        'errors': errors,
+        'form_data': {
+            'driver_name': trip.driver_name,
+            'phone': trip.phone,
+            'from_location': trip.from_location,
+            'to_location': trip.to_location,
+            'trip_date': trip.trip_date.strftime('%Y-%m-%d') if trip.trip_date else '',
+            'departure_time': trip.departure_time.strftime('%H:%M') if trip.departure_time else '',
+            'seats_available': trip.seats_available or '',
+            'price': trip.price or '',
+            'comment': trip.comment,
+        },
+        'today_str': today_str,
+        'is_edit': True,
+        'trip': trip,
+    })
+
+
+@login_required
+def trip_delete(request, trip_id):
+    """Удаление поездки (только автор или администратор)"""
+    trip = get_object_or_404(Trip, id=trip_id)
+    if trip.user and trip.user != request.user and not request.user.is_staff:
+        messages.error(request, "У вас нет прав для удаления этой поездки.")
+        return redirect('trips:list')
+
+    if request.method == 'POST':
+        trip.delete()
+        messages.success(request, "Поездка успешно удалена.")
+    return redirect('trips:list')
+
 
 

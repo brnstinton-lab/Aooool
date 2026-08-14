@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Профиль{% endblock %}
+
+{% block content %}
+<div class="space-y-4 pb-6 max-w-md mx-auto">
+
+    <!-- Заголовок -->
+    <div class="text-center pt-6 pb-2">
+        <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 mx-auto flex items-center justify-center mb-3 shadow-xs">
+            <span class="material-symbols-rounded text-3xl">person</span>
+        </div>
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Профиль</h1>
+        <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
+            Войдите или зарегистрируйтесь, чтобы управлять своим профилем.
+        </p>
+    </div>
+
+    <!-- Карточка действий -->
+    <div class="bg-white rounded-[20px] p-6 border border-slate-200/90 shadow-xs space-y-3">
+        <a href="{% url 'login' %}?next=/profile/" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs">
+            <span class="material-symbols-rounded text-base">login</span>
+            <span>Войти</span>
+        </a>
+
+        <a href="{% url 'register' %}?next=/profile/" class="w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-bold text-xs transition flex items-center justify-center gap-2">
+            <span class="material-symbols-rounded text-base">person_add</span>
+            <span>Зарегистрироваться</span>
+        </a>
+    </div>
+
+    <!-- Информационный блок -->
+    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 flex items-start gap-3">
+        <span class="material-symbols-rounded text-lg text-emerald-600 shrink-0">info</span>
+        <div class="space-y-1">
+            <span class="font-bold text-slate-800">Зачем нужен профиль в AUL?</span>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+                После авторизации вы сможете публиковать объявления, предлагать поездки, подавать заявки мастера или организации.
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

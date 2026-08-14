@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 
 class TripQuerySet(models.QuerySet):
@@ -31,6 +32,15 @@ class Trip(models.Model):
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', 'Активная'
         ARCHIVED = 'ARCHIVED', 'В архиве'
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='trips',
+        verbose_name="Автор"
+    )
 
     driver_name = models.CharField(max_length=100, verbose_name="Имя водителя")
     phone = models.CharField(max_length=30, verbose_name="Телефон")

@@ -13,8 +13,19 @@
 
     <!-- Карточка формы регистрации -->
     <div class="bg-white rounded-[20px] p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-4">
+        {% if next %}
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium flex items-center gap-2.5">
+                <span class="material-symbols-rounded text-lg text-amber-600 shrink-0">info</span>
+                <span>Чтобы добавить информацию в AUL, необходимо войти или зарегистрироваться.</span>
+            </div>
+        {% endif %}
+
         <form method="post" action="{% url 'register' %}" class="space-y-4">
             {% csrf_token %}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
 
             {% if form.non_field_errors %}
                 <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium space-y-1">

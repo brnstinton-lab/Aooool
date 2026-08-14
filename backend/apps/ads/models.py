@@ -1,6 +1,7 @@
 from datetime import timedelta
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 
 class AdQuerySet(models.QuerySet):
@@ -45,6 +46,16 @@ class Ad(models.Model):
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', 'Активное'
         ARCHIVED = 'ARCHIVED', 'В архиве'
+
+    # Автор объявления
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='ads',
+        verbose_name="Автор"
+    )
 
     # Обязательные поля
     title = models.CharField(max_length=200, verbose_name="Заголовок")

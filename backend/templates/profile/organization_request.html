@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Регистрация организации{% endblock %}
+
+{% block content %}
+<div class="space-y-4 pb-6 max-w-xl mx-auto">
+
+    <!-- Кнопка Назад -->
+    <div>
+        <a href="{% url 'profile' %}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition">
+            <span class="material-symbols-rounded text-base">arrow_back</span>
+            <span>Назад в профиль</span>
+        </a>
+    </div>
+
+    <!-- Заголовок и карточка формы -->
+    <div class="bg-white rounded-[20px] p-5 sm:p-6 border border-slate-200/90 shadow-xs space-y-5">
+        
+        <div class="space-y-1.5 border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                    <span class="material-symbols-rounded text-2xl">domain</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-slate-900 tracking-tight">Регистрация организации</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">Заявка на добавление бизнеса в справочник</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-600 pt-2 leading-relaxed">
+                Зарегистрируйте магазин, кафе, аптеку или другой местный бизнес в официальном справочнике аула.
+            </p>
+        </div>
+
+        <form method="post" action="{% url 'profile_organization_request' %}" class="space-y-4">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium space-y-1">
+                    {% for error in form.non_field_errors %}
+                        <p class="flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm">error</span>
+                            <span>{{ error }}</span>
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Название организации -->
+            <div class="space-y-1.5">
+                <label for="{{ form.name.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Название организации <span class="text-red-500">*</span>
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Тип организации -->
+            <div class="space-y-1.5">
+                <label for="{{ form.org_type.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Тип организации <span class="text-red-500">*</span>
+                </label>
+                {{ form.org_type }}
+                {% if form.org_type.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.org_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Адрес -->
+            <div class="space-y-1.5">
+                <label for="{{ form.address.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Адрес <span class="text-red-500">*</span>
+                </label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.address.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Телефон -->
+            <div class="space-y-1.5">
+                <label for="{{ form.phone.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Телефон для связи <span class="text-red-500">*</span>
+                </label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.phone.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Email -->
+            <div class="space-y-1.5">
+                <label for="{{ form.email.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Email (необязательно)
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Описание -->
+            <div class="space-y-1.5">
+                <label for="{{ form.description.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Описание
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Время работы -->
+            <div class="space-y-1.5">
+                <label for="{{ form.working_hours.id_for_label }}" class="block text-xs font-bold text-slate-700">
+                    Время работы
+                </label>
+                {{ form.working_hours }}
+                {% if form.working_hours.errors %}
+                    <p class="text-[11px] text-red-600 font-medium pt-0.5">{{ form.working_hours.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="pt-3 flex items-center gap-3">
+                <a href="{% url 'profile' %}" 
+                   class="w-1/2 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-xs transition text-center">
+                    Назад
+                </a>
+                <button type="submit" 
+                        class="w-1/2 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs">
+                    <span class="material-symbols-rounded text-base">send</span>
+                    <span>Отправить заявку</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

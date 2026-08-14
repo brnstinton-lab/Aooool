@@ -47,9 +47,10 @@ class RoleRequestAdmin(admin.ModelAdmin):
             if old_obj.status != obj.status and obj.status in [RoleRequest.Status.APPROVED, RoleRequest.Status.REJECTED]:
                 obj.reviewed_at = timezone.now()
                 obj.reviewed_by = request.user
-                if obj.status == RoleRequest.Status.APPROVED and obj.requested_role == RoleRequest.RequestedRole.MASTER:
-                    obj.user.role = Role.MASTER
-                    obj.user.save(update_fields=['role'])
+                if obj.status == RoleRequest.Status.APPROVED:
+                    if obj.requested_role in [RoleRequest.RequestedRole.MASTER, RoleRequest.RequestedRole.ORGANIZATION]:
+                        obj.user.role = obj.requested_role
+                        obj.user.save(update_fields=['role'])
             elif obj.status in [RoleRequest.Status.APPROVED, RoleRequest.Status.REJECTED] and not obj.reviewed_at:
                 obj.reviewed_at = timezone.now()
                 obj.reviewed_by = request.user
@@ -57,9 +58,10 @@ class RoleRequestAdmin(admin.ModelAdmin):
             if obj.status in [RoleRequest.Status.APPROVED, RoleRequest.Status.REJECTED]:
                 obj.reviewed_at = timezone.now()
                 obj.reviewed_by = request.user
-                if obj.status == RoleRequest.Status.APPROVED and obj.requested_role == RoleRequest.RequestedRole.MASTER:
-                    obj.user.role = Role.MASTER
-                    obj.user.save(update_fields=['role'])
+                if obj.status == RoleRequest.Status.APPROVED:
+                    if obj.requested_role in [RoleRequest.RequestedRole.MASTER, RoleRequest.RequestedRole.ORGANIZATION]:
+                        obj.user.role = obj.requested_role
+                        obj.user.save(update_fields=['role'])
 
         super().save_model(request, obj, form, change)
 
@@ -72,8 +74,8 @@ class RoleRequestAdmin(admin.ModelAdmin):
             role_req.reviewed_at = now
             role_req.reviewed_by = request.user
             role_req.save()
-            if role_req.requested_role == RoleRequest.RequestedRole.MASTER:
-                role_req.user.role = Role.MASTER
+            if role_req.requested_role in [RoleRequest.RequestedRole.MASTER, RoleRequest.RequestedRole.ORGANIZATION]:
+                role_req.user.role = role_req.requested_role
                 role_req.user.save(update_fields=['role'])
             count += 1
         self.message_user(request, f"Одобрено заявок: {count}.")
