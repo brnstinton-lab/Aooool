@@ -63,6 +63,76 @@ class RoleRequest(models.Model):
         verbose_name="Статус"
     )
 
+    # Поля для заявки мастера
+    master_specialization = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Специализация мастера"
+    )
+
+    master_experience = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Опыт работы мастера"
+    )
+
+    master_phone = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True,
+        verbose_name="Телефон мастера"
+    )
+
+    master_description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Описание услуг мастера"
+    )
+
+    # Поля для заявки организации
+    organization_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Название организации"
+    )
+
+    organization_category = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Категория организации"
+    )
+
+    organization_phone = models.CharField(
+        max_length=30,
+        blank=True,
+        null=True,
+        verbose_name="Телефон организации"
+    )
+
+    organization_address = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Адрес организации"
+    )
+
+    organization_description = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Описание организации"
+    )
+
+    organization_working_hours = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="Режим работы"
+    )
+
     comment = models.TextField(
         blank=True,
         verbose_name="Комментарий"
@@ -109,16 +179,88 @@ class RoleRequest(models.Model):
 
     def approve(self, reviewed_by=None, admin_comment=None):
         from django.utils import timezone
+        from apps.directory.models import DirectoryEntry
+
         self.status = self.Status.APPROVED
         if reviewed_by:
             self.reviewed_by = reviewed_by
         self.reviewed_at = timezone.now()
-        if admin_comment:
-            self.admin_comment = admin_comment
         self.save()
 
+        # 1. Назначаем пользователю роль
         self.user.role = self.requested_role
         self.user.save(update_fields=['role'])
+
+        # 2. Если запрашиваемая роль — Организация, создаём запись в справочнике без дублирования
+        if self.requested_role == self.RequestedRole.ORGANIZATION:
+            org_name = self.organization_name
+            if not org_name and self.comment:
+                for line in self.comment.splitlines():
+                    if line.startswith("Название:"):
+                        org_name = line.replace("Название:", "").strip()
+                        break
+            if not org_name:
+                org_name = self.user.get_full_name() or self.user.username
+
+            org_category = self.organization_category or DirectoryEntry.Category.ORGANIZATIONS
+            org_phone = self.organization_phone or getattr(self.user, 'phone', '') or ''
+            org_address = self.organization_address or ''
+            org_description = self.organization_description or ''
+            org_working_hours = self.organization_working_hours or ''
+
+            # Проверка от дублирования при повторном сохранении/одобрении
+            DirectoryEntry.objects.get_or_create(
+                name=org_name,
+                phone=org_phone,
+                defaults={
+                    'category': org_category,
+                    'address': org_address,
+                    'description': org_description,
+                    'working_hours': org_working_hours,
+                    'status': DirectoryEntry.Status.ACTIVE
+                }
+            )
+
+        # 3. Если запрашиваемая роль — Мастер, создаём запись в справочнике без дублирования
+        elif self.requested_role == self.RequestedRole.MASTER:
+            master_name = self.user.get_full_name() or self.user.username
+            master_phone = self.master_phone or getattr(self.user, 'phone', '') or ''
+
+            spec = self.master_specialization or ''
+            exp = self.master_experience or ''
+            desc = self.master_description or ''
+
+            # Совместимость со старыми заявками, где поля были только в comment
+            if not spec and self.comment:
+                for line in self.comment.splitlines():
+                    if line.startswith("Специализация:"):
+                        spec = line.replace("Специализация:", "").strip()
+                    elif line.startswith("Опыт работы:"):
+                        exp = line.replace("Опыт работы:", "").strip()
+                    elif line.startswith("Телефон:") and not master_phone:
+                        master_phone = line.replace("Телефон:", "").strip()
+                    elif line.startswith("Описание:"):
+                        desc = line.replace("Описание:", "").strip()
+
+            description_parts = []
+            if spec:
+                description_parts.append(spec)
+            if exp:
+                description_parts.append(f"Опыт: {exp}")
+            if desc:
+                description_parts.append(desc)
+
+            full_description = "\n".join(description_parts) if description_parts else (self.comment or '')
+
+            DirectoryEntry.objects.get_or_create(
+                name=master_name,
+                phone=master_phone,
+                defaults={
+                    'category': DirectoryEntry.Category.MASTERS,
+                    'description': full_description,
+                    'status': DirectoryEntry.Status.ACTIVE
+                }
+            )
 
     def reject(self, reviewed_by=None, admin_comment=None):
         from django.utils import timezone

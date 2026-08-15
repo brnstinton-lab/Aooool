@@ -107,11 +107,15 @@ def master_request_view(request):
                 user.phone = phone_input
                 user.save(update_fields=['phone'])
 
-            # Создаем заявку с гарантированной ролью MASTER
+            # Создаем заявку с гарантированной ролью MASTER и сохранением полей мастера
             RoleRequest.objects.create(
                 user=user,
                 requested_role=RoleRequest.RequestedRole.MASTER,
                 status=RoleRequest.Status.PENDING,
+                master_specialization=form.cleaned_data.get('specialization', '').strip(),
+                master_experience=form.cleaned_data.get('experience', '').strip(),
+                master_phone=phone_input,
+                master_description=form.cleaned_data.get('description', '').strip(),
                 comment=comment_text
             )
 
@@ -155,16 +159,22 @@ def organization_request_view(request):
             comment_text = form.get_formatted_comment()
 
             # Обновляем телефон пользователя, если был изменен
-            phone_input = form.cleaned_data.get('phone', '').strip()
+            phone_input = form.cleaned_data.get('organization_phone', '').strip()
             if phone_input and getattr(user, 'phone', '') != phone_input:
                 user.phone = phone_input
                 user.save(update_fields=['phone'])
 
-            # Создаем заявку с гарантированной ролью ORGANIZATION
+            # Создаем заявку с гарантированной ролью ORGANIZATION и сохранением полей
             RoleRequest.objects.create(
                 user=user,
                 requested_role=RoleRequest.RequestedRole.ORGANIZATION,
                 status=RoleRequest.Status.PENDING,
+                organization_name=form.cleaned_data.get('organization_name', '').strip(),
+                organization_category=form.cleaned_data.get('organization_category', '').strip(),
+                organization_phone=phone_input,
+                organization_address=form.cleaned_data.get('organization_address', '').strip(),
+                organization_description=form.cleaned_data.get('organization_description', '').strip(),
+                organization_working_hours=form.cleaned_data.get('organization_working_hours', '').strip(),
                 comment=comment_text
             )
 
@@ -173,9 +183,7 @@ def organization_request_view(request):
     else:
         initial_data = {}
         if getattr(user, 'phone', ''):
-            initial_data['phone'] = user.phone
-        if getattr(user, 'email', ''):
-            initial_data['email'] = user.email
+            initial_data['organization_phone'] = user.phone
         form = OrganizationRequestForm(initial=initial_data)
 
     return render(request, 'profile/organization_request.html', {

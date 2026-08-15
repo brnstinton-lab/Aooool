@@ -183,21 +183,17 @@ class MasterRequestForm(forms.Form):
         return f"Специализация: {spec}\nОпыт работы: {exp}\nТелефон: {phone}\nОписание:\n{desc}"
 
 
-ORGANIZATION_TYPE_CHOICES = [
-    ("Магазин", "Магазин"),
-    ("Кафе", "Кафе"),
-    ("Аптека", "Аптека"),
-    ("СТО", "СТО"),
-    ("Сервис", "Сервис"),
-    ("Фермерское хозяйство", "Фермерское хозяйство"),
-    ("Производство", "Производство"),
-    ("Салон красоты", "Салон красоты"),
-    ("Другое", "Другое"),
+ORGANIZATION_CATEGORY_CHOICES = [
+    ("organizations", "Организации"),
+    ("shops", "Магазины"),
+    ("pharmacies", "Аптеки"),
+    ("cafe", "Кафе и еда"),
+    ("other", "Другое"),
 ]
 
 
 class OrganizationRequestForm(forms.Form):
-    name = forms.CharField(
+    organization_name = forms.CharField(
         label="Название организации",
         required=True,
         widget=forms.TextInput(attrs={
@@ -205,14 +201,14 @@ class OrganizationRequestForm(forms.Form):
             'placeholder': 'Например: Магазин Айжан'
         })
     )
-    org_type = forms.ChoiceField(
-        label="Тип организации",
-        choices=ORGANIZATION_TYPE_CHOICES,
+    organization_category = forms.ChoiceField(
+        label="Категория организации",
+        choices=ORGANIZATION_CATEGORY_CHOICES,
         widget=forms.Select(attrs={
             'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition'
         })
     )
-    address = forms.CharField(
+    organization_address = forms.CharField(
         label="Адрес",
         required=True,
         widget=forms.TextInput(attrs={
@@ -220,23 +216,15 @@ class OrganizationRequestForm(forms.Form):
             'placeholder': 'Улица, дом'
         })
     )
-    phone = forms.CharField(
-        label="Телефон",
+    organization_phone = forms.CharField(
+        label="Телефон для связи",
         required=True,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
             'placeholder': '+7 (7XX) XXX-XX-XX'
         })
     )
-    email = forms.EmailField(
-        label="Email",
-        required=False,
-        widget=forms.EmailInput(attrs={
-            'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
-            'placeholder': 'example@aul.kz'
-        })
-    )
-    description = forms.CharField(
+    organization_description = forms.CharField(
         label="Описание",
         required=False,
         widget=forms.Textarea(attrs={
@@ -245,8 +233,8 @@ class OrganizationRequestForm(forms.Form):
             'placeholder': 'Расскажите об организации, товарах или услугах...'
         })
     )
-    working_hours = forms.CharField(
-        label="Время работы",
+    organization_working_hours = forms.CharField(
+        label="Режим работы",
         required=False,
         widget=forms.TextInput(attrs={
             'class': 'w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 transition',
@@ -255,22 +243,20 @@ class OrganizationRequestForm(forms.Form):
     )
 
     def get_formatted_comment(self):
-        name = self.cleaned_data.get('name', '').strip()
-        org_type = self.cleaned_data.get('org_type', '').strip()
-        address = self.cleaned_data.get('address', '').strip()
-        phone = self.cleaned_data.get('phone', '').strip()
-        email = self.cleaned_data.get('email', '').strip()
-        desc = self.cleaned_data.get('description', '').strip()
-        hours = self.cleaned_data.get('working_hours', '').strip()
+        name = self.cleaned_data.get('organization_name', '').strip()
+        cat = self.cleaned_data.get('organization_category', '').strip()
+        address = self.cleaned_data.get('organization_address', '').strip()
+        phone = self.cleaned_data.get('organization_phone', '').strip()
+        desc = self.cleaned_data.get('organization_description', '').strip()
+        hours = self.cleaned_data.get('organization_working_hours', '').strip()
 
         return (
             f"Название: {name}\n"
-            f"Тип: {org_type}\n"
+            f"Категория: {cat}\n"
             f"Адрес: {address}\n"
             f"Телефон: {phone}\n"
-            f"Email: {email}\n"
             f"Описание: {desc}\n"
-            f"Время работы: {hours}"
+            f"Режим работы: {hours}"
         )
 
 
