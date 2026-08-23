@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Мои поездки{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header Card -->
+    <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-200/80 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'profile' %}" class="w-10 h-10 rounded-xl bg-white text-slate-700 flex items-center justify-center border border-slate-200 hover:bg-slate-100 transition shrink-0" title="Назад в профиль">
+                <span class="material-symbols-rounded text-xl">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-lg font-bold text-emerald-950 flex items-center gap-2">
+                    <span>🚗 Мои поездки</span>
+                    <span class="bg-emerald-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">{{ trips|length }}</span>
+                </h1>
+                <p class="text-xs text-emerald-800 leading-snug">Управление созданными вами поездками и маршрутами.</p>
+            </div>
+        </div>
+        <a href="{% url 'trips:create' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1 shrink-0 shadow-xs active:scale-95 transition">
+            <span class="material-symbols-rounded text-sm">add</span>
+            <span>Добавить</span>
+        </a>
+    </div>
+
+    <!-- Trips List -->
+    <div class="space-y-3">
+        {% if trips %}
+            {% for item in trips %}
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3 min-w-0 overflow-hidden">
+                <div class="flex items-start justify-between gap-2 min-w-0">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="font-black text-slate-900 text-base break-words min-w-0">{{ item.from_location }} → {{ item.to_location }}</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                            <span>Водитель: <strong class="text-slate-700 break-words">{{ item.driver_name }}</strong></span>
+                            <span>•</span>
+                            <span>{{ item.trip_date|date:"j E" }}{% if item.departure_time %} • {{ item.departure_time|time:"H:i" }}{% endif %}</span>
+                        </div>
+                        {% if item.comment %}
+                            <p class="text-xs text-slate-600 mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100 line-clamp-2 break-words overflow-hidden">{{ item.comment }}</p>
+                        {% endif %}
+                    </div>
+                    {% if item.price is not None %}
+                        <span class="text-sm font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0">{{ item.price }} ₸</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Actions Bar for Owner -->
+                <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100 gap-2">
+                    <div>
+                        {% if item.seats_available is not None %}
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-rounded text-sm text-slate-400">airline_seat_recline_normal</span>
+                            <span class="font-bold text-emerald-700">{{ item.seats_available }} свободных мест</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'trips:edit' item.id %}" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm">edit</span>
+                            <span>Изменить</span>
+                        </a>
+                        <form method="post" action="{% url 'trips:delete' item.id %}" onsubmit="return confirm('Вы уверены, что хотите удалить эту поездку?');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1">
+                                <span class="material-symbols-rounded text-sm">delete</span>
+                                <span>Удалить</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="bg-white rounded-2xl p-8 border border-slate-200/90 shadow-xs text-center space-y-3">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
+                    <span class="material-symbols-rounded text-3xl">directions_car</span>
+                </div>
+                <h3 class="font-bold text-slate-900 text-base">У вас пока нет поездок</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Предложите поездку или свободные места в автомобиле для жителей аула. Все ваши поездки будут отображаться здесь.
+                </p>
+                <div class="pt-2">
+                    <a href="{% url 'trips:create' %}" class="inline-flex items-center gap-1.5 bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition shadow-xs active:scale-95">
+                        <span class="material-symbols-rounded text-base">add</span>
+                        Добавить поездку
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

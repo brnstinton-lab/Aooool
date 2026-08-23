@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Сообщить о срочном происшествии{% endblock %}
+
+{% block content %}
+<div class="space-y-4 max-w-lg mx-auto"
+     x-data="{
+         selectedCategory: '{{ form.category.value|default:"MISSING_CHILD" }}',
+         photoPreview: null,
+         fileName: '',
+         handleFileChange(event) {
+             const file = event.target.files[0];
+             if (file) {
+                 this.fileName = file.name;
+                 const reader = new FileReader();
+                 reader.onload = (e) => {
+                     this.photoPreview = e.target.result;
+                 };
+                 reader.readAsDataURL(file);
+             } else {
+                 this.photoPreview = null;
+                 this.fileName = '';
+             }
+         },
+         removePhoto() {
+             this.photoPreview = null;
+             this.fileName = '';
+             const input = document.getElementById('urgent_photo_input');
+             if (input) input.value = '';
+         }
+     }">
+
+    <!-- Back Button & Header Card -->
+    <div class="flex items-center gap-2">
+        <a href="{% url 'notifications:list' %}" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 transition shadow-xs">
+            <span class="material-symbols-rounded text-2xl">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-red-600 text-2xl">emergency</span>
+                Срочное происшествие
+            </h1>
+            <p class="text-xs text-slate-500">Публикуется сразу без задержек</p>
+        </div>
+    </div>
+
+    <!-- Alert Banner -->
+    <div class="bg-red-50 rounded-2xl p-4 border border-red-200/80 space-y-1">
+        <div class="flex items-center gap-2 text-red-900 font-bold text-xs">
+            <span class="material-symbols-rounded text-base text-red-600">notifications_active</span>
+            Мгновенная публикация
+        </div>
+        <p class="text-[12px] text-red-800 leading-relaxed">
+            Сообщение моментально увидят все жители аула. Публикуйте только проверенную и действительно срочную информацию.
+        </p>
+    </div>
+
+    <!-- Main Form Card -->
+    <form method="post" enctype="multipart/form-data" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 space-y-1">
+                {% for err in form.non_field_errors %}
+                    <p>{{ err }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- 1. Category Selection -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+                Категория происшествия <span class="text-red-500">*</span>
+            </label>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <p class="text-[11px] font-semibold text-red-600">{{ form.category.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- 2. MISSING CHILD DEDICATED FIELDS (Показываются только для MISSING_CHILD) -->
+        <div x-show="selectedCategory === 'MISSING_CHILD'" x-cloak class="space-y-4 pt-2 border-t border-slate-100">
+            <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 font-medium flex items-center gap-2">
+                <span class="material-symbols-rounded text-amber-700 text-lg">info</span>
+                <span>Для поиска ребёнка <b>фотография обязательна</b>. Заполните приметы максимально подробно.</span>
+            </div>
+
+            <!-- Child Name & Age Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-800">
+                        Имя и фамилия ребёнка <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.child_name }}
+                    {% if form.child_name.errors %}
+                        <p class="text-[11px] font-semibold text-red-600">{{ form.child_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="block text-xs font-bold text-slate-800">
+                        Возраст ребёнка <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.child_age }}
+                    {% if form.child_age.errors %}
+                        <p class="text-[11px] font-semibold text-red-600">{{ form.child_age.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Clothing -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Во что был(а) одет(а)
+                </label>
+                {{ form.clothing }}
+                {% if form.clothing.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.clothing.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Appearance -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Особые приметы (рост, волосы, глаза, шрамы)
+                </label>
+                {{ form.appearance }}
+                {% if form.appearance.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.appearance.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Extra Info -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Дополнительная информация (боится собак, был с велосипедом...)
+                </label>
+                {{ form.extra_info }}
+                {% if form.extra_info.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.extra_info.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 3. GENERAL TITLE & DESCRIPTION (Для других категорий) -->
+        <div x-show="selectedCategory !== 'MISSING_CHILD'" class="space-y-3">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Краткий заголовок <span class="text-red-500">*</span>
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Описание происшествия <span class="text-red-500">*</span>
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 4. LOCATION & TIME -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    <span x-text="selectedCategory === 'MISSING_CHILD' ? 'Где видели в последний раз *' : 'Место происшествия'"></span>
+                </label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.location.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Дата и время
+                </label>
+                {{ form.incident_time }}
+                {% if form.incident_time.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.incident_time.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 5. CONTACT PHONE -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+                Контактный телефон для связи <span class="text-red-500">*</span>
+            </label>
+            {{ form.contact_phone }}
+            {% if form.contact_phone.errors %}
+                <p class="text-[11px] font-semibold text-red-600">{{ form.contact_phone.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- 6. PHOTO ATTACHMENT -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+            <label class="block text-xs font-bold text-slate-800">
+                Фотография
+                <span x-show="selectedCategory === 'MISSING_CHILD'" class="text-red-500 font-bold">* (Обязательно для пропавшего ребёнка)</span>
+                <span x-show="selectedCategory !== 'MISSING_CHILD'" class="text-slate-400 font-normal">(по желанию)</span>
+            </label>
+            
+            {{ form.image }}
+
+            <!-- Upload Box / Preview Box -->
+            <div class="space-y-2">
+                <!-- Dropzone when no photo -->
+                <div x-show="!photoPreview"
+                     @click="document.getElementById('urgent_photo_input').click()"
+                     class="border-2 border-dashed border-slate-300 hover:border-red-500 rounded-2xl p-6 text-center cursor-pointer transition bg-slate-50 hover:bg-red-50/40 group">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-slate-200 group-hover:bg-red-100 text-slate-500 group-hover:text-red-600 flex items-center justify-center transition">
+                        <span class="material-symbols-rounded text-2xl">add_a_photo</span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-700 mt-2">Нажмите для выбора фотографии</p>
+                    <p class="text-[11px] text-slate-400">JPG, PNG до 10 МБ</p>
+                </div>
+
+                <!-- Live Preview when photo selected -->
+                <div x-show="photoPreview" x-cloak class="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 group">
+                    <img :src="photoPreview" alt="Предпросмотр" class="w-full max-h-64 object-contain mx-auto" />
+                    <button type="button"
+                            @click="removePhoto()"
+                            class="absolute top-3 right-3 bg-red-600/90 hover:bg-red-700 text-white rounded-full p-2 shadow-lg transition flex items-center justify-center focus:outline-none"
+                            title="Удалить фото">
+                        <span class="material-symbols-rounded text-lg">close</span>
+                    </button>
+                    <div class="absolute bottom-0 inset-x-0 bg-black/60 backdrop-blur-xs p-2 px-3 text-white text-[11px] truncate" x-text="fileName"></div>
+                </div>
+            </div>
+
+            {% if form.image.errors %}
+                <p class="text-[11px] font-semibold text-red-600 pt-1">{{ form.image.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="pt-3 space-y-2">
+            <button type="submit" class="w-full py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                <span class="material-symbols-rounded text-xl">send</span>
+                <span>Опубликовать срочное сообщение</span>
+            </button>
+
+            <a href="{% url 'notifications:list' %}" class="w-full py-2.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

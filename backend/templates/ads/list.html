@@ -3,7 +3,32 @@
 {% block title %}AUL — Объявления | Свой посёлок. Свои люди.{% endblock %}
 
 {% block content %}
-<div class="space-y-4">
+<div class="space-y-4"
+     x-data="{
+         expandedId: null,
+         viewerOpen: false,
+         viewerImages: [],
+         viewerIndex: 0,
+         openViewer(images, index = 0) {
+             if (!images || (Array.isArray(images) && images.length === 0)) return;
+             this.viewerImages = Array.isArray(images) ? images : [images];
+             this.viewerIndex = Math.max(0, Math.min(index, this.viewerImages.length - 1));
+             this.viewerOpen = true;
+         },
+         closeViewer() {
+             this.viewerOpen = false;
+         },
+         nextViewer() {
+             if (this.viewerImages.length > 1) {
+                 this.viewerIndex = (this.viewerIndex + 1) % this.viewerImages.length;
+             }
+         },
+         prevViewer() {
+             if (this.viewerImages.length > 1) {
+                 this.viewerIndex = (this.viewerIndex - 1 + this.viewerImages.length) % this.viewerImages.length;
+             }
+         }
+     }">
     <!-- Header Card -->
     <div class="bg-blue-50 rounded-2xl p-4 border border-blue-200/80 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -21,53 +46,146 @@
         </a>
     </div>
 
-    <!-- Ad List -->
+    <!-- Ad List (Accordion) -->
     <div class="space-y-3">
         {% if ads %}
             {% for item in ads %}
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3 min-w-0 overflow-hidden">
-                <div class="flex items-center justify-between gap-2 flex-wrap">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
-                            {{ item.get_ad_type_display }}
-                        </span>
-                        <span class="bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                            {{ item.get_category_display }}
-                        </span>
-                    </div>
-                    <span class="text-xs text-slate-400 font-medium">
-                        {{ item.get_relative_time }}
-                    </span>
-                </div>
-
-                <div class="flex items-start justify-between gap-3 min-w-0 pt-0.5">
-                    <div class="min-w-0 flex-1">
-                        <h3 class="font-bold text-slate-900 text-base break-words leading-snug">
-                            {{ item.title }}
-                        </h3>
-                        {% if item.description %}
-                            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed break-words">{{ item.description }}</p>
-                        {% endif %}
-                        {% if item.comment %}
-                            <p class="text-xs text-slate-500 mt-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100 break-words">{{ item.comment }}</p>
-                        {% endif %}
-                    </div>
-                    {% if item.price is not None %}
-                        <div class="text-sm font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0">
-                            {{ item.price }} ₸
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-200">
+                <!-- Collapsed Header Card (Always Visible) -->
+                <div @click="expandedId = (expandedId === '{{ item.id }}' ? null : '{{ item.id }}')"
+                     class="p-4 cursor-pointer select-none hover:bg-slate-50/80 transition flex items-center justify-between gap-3">
+                    <div class="min-w-0 space-y-1.5 flex-1">
+                        <!-- Top Ribbon / Meta -->
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                    {{ item.get_ad_type_display }}
+                                </span>
+                                <span class="bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    {{ item.get_category_display }}
+                                </span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-medium shrink-0">
+                                {{ item.get_relative_time }}
+                            </span>
                         </div>
-                    {% endif %}
+
+                        <!-- Title and Price in Header -->
+                        <div class="flex items-start justify-between gap-3 min-w-0 pt-0.5">
+                            <h3 class="font-bold text-slate-900 text-base break-words leading-snug">
+                                {{ item.title }}
+                            </h3>
+                            {% if item.price is not None %}
+                                <div class="text-sm font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0">
+                                    {{ item.price }} ₸
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Toggle Arrow Button ▼ -->
+                    <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center shrink-0 transition-colors">
+                        <span class="material-symbols-rounded text-[22px] transition-transform duration-300"
+                              :class="expandedId === '{{ item.id }}' ? 'rotate-180 text-blue-600' : ''">
+                            expand_more
+                        </span>
+                    </div>
                 </div>
 
-                <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">
-                    <div class="flex items-center gap-1.5 text-slate-500">
-                        <span class="material-symbols-rounded text-sm">call</span>
-                        <span class="font-medium text-slate-700">{{ item.phone }}</span>
+                <!-- Expanded Body Content (Accordion) -->
+                <div x-show="expandedId === '{{ item.id }}'"
+                     x-collapse
+                     class="px-4 pb-4 pt-1 border-t border-slate-100 space-y-3">
+                    
+                    <!-- Photos (Only rendered when card is expanded) -->
+                    {% if item.images.all %}
+                        <template x-if="expandedId === '{{ item.id }}'">
+                            <div class="pt-1">
+                                {% if item.images.all|length == 1 %}
+                                    <!-- Single Photo -->
+                                    <div @click.stop="openViewer(['{{ item.images.all.0.image.url }}'], 0)"
+                                         class="w-full h-56 rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs cursor-pointer group">
+                                        <img src="{{ item.images.all.0.image.url }}"
+                                             alt="{{ item.title }}"
+                                             loading="lazy"
+                                             class="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-300" />
+                                    </div>
+                                {% else %}
+                                    <!-- Multiple Photos Horizontal Gallery with Swipe/Scroll and Indicator Dots -->
+                                    <div class="space-y-2" x-data="{ activeIndex: 0, imagesList: [{% for img in item.images.all %}'{{ img.image.url }}'{% if not forloop.last %}, {% endif %}{% endfor %}] }">
+                                        <div class="relative w-full h-56 rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs">
+                                            <div class="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth"
+                                                 x-ref="gallery"
+                                                 @scroll.debounce.50ms="
+                                                     const el = $refs.gallery;
+                                                     if (el && el.clientWidth > 0) {
+                                                         activeIndex = Math.round(el.scrollLeft / el.clientWidth);
+                                                     }
+                                                 ">
+                                                {% for img in item.images.all %}
+                                                    <div @click.stop="openViewer(imagesList, {{ forloop.counter0 }})"
+                                                         class="snap-center shrink-0 w-full h-full overflow-hidden bg-slate-100 cursor-pointer group">
+                                                        <img src="{{ img.image.url }}"
+                                                             alt="Фото {{ forloop.counter }}"
+                                                             loading="lazy"
+                                                             class="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-300" />
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <!-- Indicator Dots ● ○ ○ with Counter -->
+                                        <div class="flex items-center justify-between px-1">
+                                            <div class="flex items-center gap-1.5">
+                                                {% for img in item.images.all %}
+                                                    <button type="button"
+                                                            @click.stop="
+                                                                activeIndex = {{ forloop.counter0 }};
+                                                                $refs.gallery.scrollTo({ left: {{ forloop.counter0 }} * $refs.gallery.clientWidth, behavior: 'smooth' });
+                                                            "
+                                                            class="h-2 rounded-full transition-all duration-300 focus:outline-none"
+                                                            :class="activeIndex === {{ forloop.counter0 }} ? 'w-5 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'">
+                                                    </button>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="text-[11px] font-medium text-slate-500">
+                                                Фото <span x-text="activeIndex + 1"></span> из {{ item.images.all|length }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </template>
+                    {% endif %}
+
+                    <!-- Description -->
+                    {% if item.description %}
+                        <p class="text-xs text-slate-600 leading-relaxed break-words whitespace-pre-line">{{ item.description }}</p>
+                    {% endif %}
+
+                    <!-- Comment -->
+                    {% if item.comment %}
+                        <p class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100 break-words whitespace-pre-line">{{ item.comment }}</p>
+                    {% endif %}
+
+                    <!-- Contact & Action Bar -->
+                    <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100 gap-2 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            {% if item.price is not None %}
+                                <span class="font-bold text-emerald-700 text-sm">{{ item.price }} ₸</span>
+                            {% endif %}
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <span class="material-symbols-rounded text-sm">call</span>
+                                <span class="font-medium text-slate-700">{{ item.phone }}</span>
+                            </div>
+                        </div>
+                        <a href="tel:{{ item.phone }}" 
+                           @click.stop
+                           class="bg-blue-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 hover:bg-blue-700 active:scale-95 transition shadow-xs">
+                            <span class="material-symbols-rounded text-sm">call</span>
+                            Позвонить
+                        </a>
                     </div>
-                    <a href="tel:{{ item.phone }}" class="bg-blue-600 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-1 hover:bg-blue-700 active:scale-95 transition">
-                        <span class="material-symbols-rounded text-sm">call</span>
-                        Позвонить
-                    </a>
                 </div>
             </div>
             {% endfor %}
@@ -86,6 +204,85 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- Image Viewer Overlay Component -->
+    <template x-teleport="body">
+        <div x-show="viewerOpen"
+             x-cloak
+             @keydown.escape.window="if (viewerOpen) closeViewer()"
+             @keydown.left.window="if (viewerOpen) prevViewer()"
+             @keydown.right.window="if (viewerOpen) nextViewer()"
+             x-transition:enter="transition ease-out duration-250"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md select-none p-3 sm:p-6"
+             style="display: none;"
+             @click.self="closeViewer()">
+
+            <!-- Close Button ✕ -->
+            <button type="button"
+                    @click="closeViewer()"
+                    class="absolute top-4 right-4 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-xs"
+                    title="Закрыть (Esc)">
+                <span class="material-symbols-rounded text-2xl">close</span>
+            </button>
+
+            <!-- Main Centered Image Container -->
+            <div class="relative max-w-full max-h-full flex items-center justify-center"
+                 @click.self="closeViewer()">
+                <template x-if="viewerImages && viewerImages.length > 0">
+                    <img :src="viewerImages[viewerIndex]"
+                         :key="viewerIndex"
+                         alt="Просмотр фотографии"
+                         x-transition:enter="transition ease-out duration-250"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="max-w-[92vw] max-h-[80vh] sm:max-h-[85vh] object-contain rounded-2xl shadow-2xl transition-all duration-300" />
+                </template>
+            </div>
+
+            <!-- Left Arrow Button ← -->
+            <button type="button"
+                    x-show="viewerImages && viewerImages.length > 1"
+                    @click.stop="prevViewer()"
+                    class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-xs"
+                    title="Предыдущая фотография">
+                <span class="material-symbols-rounded text-2xl">chevron_left</span>
+            </button>
+
+            <!-- Right Arrow Button → -->
+            <button type="button"
+                    x-show="viewerImages && viewerImages.length > 1"
+                    @click.stop="nextViewer()"
+                    class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 text-white flex items-center justify-center transition-all focus:outline-none backdrop-blur-xs"
+                    title="Следующая фотография">
+                <span class="material-symbols-rounded text-2xl">chevron_right</span>
+            </button>
+
+            <!-- Indicator Dots & Counter (● ○ ○ ○) -->
+            <div x-show="viewerImages && viewerImages.length > 1"
+                 class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5">
+                <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
+                    <template x-for="(img, idx) in viewerImages" :key="idx">
+                        <button type="button"
+                                @click.stop="viewerIndex = idx"
+                                class="h-2 rounded-full transition-all duration-300 focus:outline-none"
+                                :class="viewerIndex === idx ? 'w-5 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'">
+                        </button>
+                    </template>
+                </div>
+                <span class="text-xs font-medium text-white/80 drop-shadow-sm"
+                      x-text="`${viewerIndex + 1} из ${viewerImages.length}`">
+                </span>
+            </div>
+        </div>
+    </template>
 </div>
 {% endblock %}
 

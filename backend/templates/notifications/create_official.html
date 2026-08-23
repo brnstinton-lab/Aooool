@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Создать официальное объявление{% endblock %}
+
+{% block content %}
+<div class="space-y-4 max-w-lg mx-auto">
+
+    <!-- Back Button & Header Card -->
+    <div class="flex items-center gap-2">
+        <a href="{% url 'notifications:list' %}" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 transition shadow-xs">
+            <span class="material-symbols-rounded text-2xl">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-lg font-bold text-slate-900 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-amber-600 text-2xl">campaign</span>
+                Официальное объявление
+            </h1>
+            <p class="text-xs text-slate-500">Для проверенных организаций и служб</p>
+        </div>
+    </div>
+
+    <!-- Moderation Info Banner -->
+    <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200/80 space-y-1">
+        <div class="flex items-center gap-2 text-amber-950 font-bold text-xs">
+            <span class="material-symbols-rounded text-base text-amber-700">verified_user</span>
+            Предварительная модерация
+        </div>
+        <p class="text-[12px] text-amber-900 leading-relaxed">
+            После отправки объявление поступает на проверку администратору и появится в общей ленте сразу после одобрения.
+        </p>
+    </div>
+
+    <!-- Main Form Card -->
+    <form method="post" enctype="multipart/form-data" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 space-y-1">
+                {% for err in form.non_field_errors %}
+                    <p>{{ err }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Category -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+                Категория объявления <span class="text-red-500">*</span>
+            </label>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <p class="text-[11px] font-semibold text-red-600">{{ form.category.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Title -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+                Заголовок сообщения <span class="text-red-500">*</span>
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <p class="text-[11px] font-semibold text-red-600">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-800">
+                Текст официального сообщения <span class="text-red-500">*</span>
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <p class="text-[11px] font-semibold text-red-600">{{ form.description.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Village & Expire Date Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Населённый пункт
+                </label>
+                {{ form.village }}
+                {% if form.village.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.village.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-800">
+                    Действует до
+                </label>
+                {{ form.expire_date }}
+                {% if form.expire_date.errors %}
+                    <p class="text-[11px] font-semibold text-red-600">{{ form.expire_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Is Important Checkbox -->
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+            {{ form.is_important }}
+            <label for="{{ form.is_important.id_for_label }}" class="text-xs font-bold text-slate-800 cursor-pointer">
+                Отметить как важное (выделит в топе ленты)
+            </label>
+        </div>
+
+        <!-- Image Attachment -->
+        <div class="space-y-1.5 pt-1">
+            <label class="block text-xs font-bold text-slate-800">
+                Прикрепить документ или изображение (необязательно)
+            </label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <p class="text-[11px] font-semibold text-red-600">{{ form.image.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="pt-3 space-y-2">
+            <button type="submit" class="w-full py-3.5 px-4 rounded-2xl bg-amber-600 hover:bg-amber-700 active:scale-[0.99] text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                <span class="material-symbols-rounded text-xl">send</span>
+                <span>Отправить на модерацию</span>
+            </button>
+
+            <a href="{% url 'notifications:list' %}" class="w-full py-2.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

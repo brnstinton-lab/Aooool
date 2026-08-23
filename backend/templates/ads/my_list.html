@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Мои объявления{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header Card -->
+    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-200/80 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <a href="{% url 'profile' %}" class="w-10 h-10 rounded-xl bg-white text-slate-700 flex items-center justify-center border border-slate-200 hover:bg-slate-100 transition shrink-0" title="Назад в профиль">
+                <span class="material-symbols-rounded text-xl">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="text-lg font-bold text-blue-950 flex items-center gap-2">
+                    <span>🛒 Мои объявления</span>
+                    <span class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">{{ ads|length }}</span>
+                </h1>
+                <p class="text-xs text-blue-800 leading-snug">Управление вашими опубликованными объявлениями.</p>
+            </div>
+        </div>
+        <a href="{% url 'ads:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-2 rounded-xl shrink-0 transition active:scale-95 shadow-xs flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm">add</span>
+            <span>Подать</span>
+        </a>
+    </div>
+
+    <!-- Ad List -->
+    <div class="space-y-3">
+        {% if ads %}
+            {% for item in ads %}
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-3 min-w-0 overflow-hidden">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                            {{ item.get_ad_type_display }}
+                        </span>
+                        <span class="bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            {{ item.get_category_display }}
+                        </span>
+                        {% if item.status == 'active' %}
+                            <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                Активно
+                            </span>
+                        {% else %}
+                            <span class="bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ item.get_status_display }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs text-slate-400 font-medium">
+                        {{ item.get_relative_time }}
+                    </span>
+                </div>
+
+                <div class="flex items-start justify-between gap-3 min-w-0 pt-0.5">
+                    <div class="min-w-0 flex-1">
+                        <h3 class="font-bold text-slate-900 text-base break-words leading-snug">
+                            {{ item.title }}
+                        </h3>
+                        {% if item.description %}
+                            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed break-words">{{ item.description }}</p>
+                        {% endif %}
+                        {% if item.comment %}
+                            <p class="text-xs text-slate-500 mt-1.5 bg-slate-50 p-2.5 rounded-xl border border-slate-100 break-words">{{ item.comment }}</p>
+                        {% endif %}
+                    </div>
+                    {% if item.price is not None %}
+                        <div class="text-sm font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0">
+                            {{ item.price }} ₸
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Actions Bar for Owner -->
+                <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100 gap-2">
+                    <div class="flex items-center gap-1.5 text-slate-500">
+                        <span class="material-symbols-rounded text-sm">call</span>
+                        <span class="font-medium text-slate-700">{{ item.phone }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'ads:edit' item.id %}" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1">
+                            <span class="material-symbols-rounded text-sm">edit</span>
+                            <span>Изменить</span>
+                        </a>
+                        <form method="post" action="{% url 'ads:delete' item.id %}" onsubmit="return confirm('Вы уверены, что хотите удалить это объявление?');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1">
+                                <span class="material-symbols-rounded text-sm">delete</span>
+                                <span>Удалить</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="bg-white rounded-2xl p-8 border border-slate-200/90 shadow-xs text-center space-y-3">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto border border-blue-100">
+                    <span class="material-symbols-rounded text-3xl">shopping_bag</span>
+                </div>
+                <h3 class="font-bold text-slate-900 text-base">У вас пока нет объявлений</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                    Предложите товары, сельхозпродукцию или услуги жителям аула. Все ваши объявления будут отображаться здесь.
+                </p>
+                <div class="pt-2">
+                    <a href="{% url 'ads:create' %}" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-xs active:scale-95">
+                        <span class="material-symbols-rounded text-base">add</span>
+                        Подать первое объявление
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

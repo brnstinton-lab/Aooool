@@ -1,26 +1,80 @@
 <div class="space-y-3 pt-2">
     <!-- Category & Village Banner -->
     <div class="flex items-center justify-between gap-2">
-        <span class="text-[14px] font-semibold px-3 py-1 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#F59E0B]/30">
+        <span class="text-[13px] font-bold px-3 py-1 rounded-full {% if details.is_urgent %}bg-red-600 text-white shadow-xs{% else %}bg-[#FEF3C7] text-[#92400E] border border-[#F59E0B]/30{% endif %}">
             {{ details.category_display }}
         </span>
-        <span class="text-[14px] text-[#6B7280] font-medium flex items-center gap-1">
-            <span class="material-symbols-rounded text-[18px] text-[#16A34A]">location_on</span>
+        <span class="text-[13px] text-[#6B7280] font-medium flex items-center gap-1">
+            <span class="material-symbols-rounded text-[18px] text-red-500">location_on</span>
             {{ details.village }}
         </span>
     </div>
 
-    <!-- Full Description -->
-    {% if details.description %}
-        <div class="text-[14px] text-[#111827] leading-relaxed bg-[#FEF3C7]/40 p-3.5 rounded-xl border border-[#F59E0B]/20 whitespace-pre-line">
+    <!-- Special Missing Child Details -->
+    {% if details.category == 'MISSING_CHILD' %}
+        <div class="bg-red-50/80 p-3.5 rounded-xl border border-red-200 text-xs text-slate-800 space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-medium">
+                {% if details.child_name %}
+                    <div><span class="text-slate-500">Имя:</span> <b>{{ details.child_name }}</b></div>
+                {% endif %}
+                {% if details.child_age %}
+                    <div><span class="text-slate-500">Возраст:</span> <b>{{ details.child_age }}</b></div>
+                {% endif %}
+                {% if details.location %}
+                    <div class="sm:col-span-2"><span class="text-slate-500">Где видели:</span> <b>{{ details.location }}</b></div>
+                {% endif %}
+                {% if details.incident_time %}
+                    <div class="sm:col-span-2"><span class="text-slate-500">Время:</span> <b>{{ details.incident_time }}</b></div>
+                {% endif %}
+            </div>
+
+            {% if details.clothing %}
+                <div class="pt-1 border-t border-red-100"><span class="text-slate-500">Одежда:</span> {{ details.clothing }}</div>
+            {% endif %}
+            {% if details.appearance %}
+                <div><span class="text-slate-500">Приметы:</span> {{ details.appearance }}</div>
+            {% endif %}
+            {% if details.extra_info %}
+                <div class="italic text-slate-600"><span class="text-slate-500 not-italic font-semibold">Важно:</span> {{ details.extra_info }}</div>
+            {% endif %}
+        </div>
+    {% elif details.description %}
+        <!-- Standard Description -->
+        <div class="text-[14px] text-[#111827] leading-relaxed {% if details.is_urgent %}bg-red-50/50 border border-red-200{% else %}bg-[#FEF3C7]/40 border border-[#F59E0B]/20{% endif %} p-3.5 rounded-xl whitespace-pre-line">
             {{ details.description }}
+        </div>
+    {% endif %}
+
+    <!-- Location & Time for other urgent items -->
+    {% if details.is_urgent and details.category != 'MISSING_CHILD' and details.location %}
+        <div class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl flex flex-wrap items-center gap-3">
+            <span class="flex items-center gap-1 font-medium">
+                <span class="material-symbols-rounded text-sm text-red-500">location_on</span>
+                {{ details.location }}
+            </span>
+            {% if details.incident_time %}
+                <span class="flex items-center gap-1 text-slate-500">
+                    <span class="material-symbols-rounded text-sm">schedule</span>
+                    {{ details.incident_time }}
+                </span>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- Contact Button for Urgent Items -->
+    {% if details.contact_phone %}
+        <div class="pt-1">
+            <a href="tel:{{ details.contact_phone }}" class="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition">
+                <span class="material-symbols-rounded text-base">call</span>
+                <span>Позвонить: {{ details.contact_phone }}</span>
+            </a>
         </div>
     {% endif %}
 
     <!-- Publish info -->
     {% if details.publish_date_str %}
-        <div class="text-[14px] text-[#6B7280] flex items-center gap-1 pt-1">
-            <span class="material-symbols-rounded text-[18px]">schedule</span>
+        <div class="text-[12px] text-[#6B7280] flex items-center gap-1 pt-1">
+            <span class="material-symbols-rounded text-[16px]">schedule</span>
             <span>Опубликовано: {{ details.publish_date_str }}</span>
         </div>
     {% endif %}

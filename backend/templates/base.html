@@ -141,11 +141,11 @@
             </div>
             
             <div class="grid grid-cols-1 gap-3 pt-1">
-                <a href="/notifications/" class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#92400E] transition border border-[#F59E0B]/30">
-                    <span class="w-10 h-10 rounded-xl bg-[#D97706] text-white flex items-center justify-center material-symbols-rounded text-[24px]">bolt</span>
+                <a href="{% url 'notifications:create' %}" class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-950 transition border border-red-200">
+                    <span class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center material-symbols-rounded text-[24px]">emergency</span>
                     <div>
                         <div class="font-semibold text-[16px]">Оповещение</div>
-                        <div class="text-[14px] text-[#B45309]">Сообщить об отключениях и событиях</div>
+                        <div class="text-[13px] text-red-800">Срочные происшествия и объявления</div>
                     </div>
                 </a>
 

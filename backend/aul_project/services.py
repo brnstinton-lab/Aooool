@@ -76,25 +76,46 @@ class FeedAggregator:
     def get_feed(cls):
         items = []
 
-        # 1. Официальные объявления (Оповещения)
+        # 1. Официальные и срочные оповещения
         now = timezone.now()
         db_announcements = Announcement.objects.filter(
             status=Announcement.Status.ACTIVE
         ).filter(
             Q(expire_date__isnull=True) | Q(expire_date__gt=now)
-        ).order_by('-publish_date')
+        ).order_by('-is_pinned', '-is_important', '-publish_date')
 
         if db_announcements.exists():
             for item in db_announcements:
-                category_icon = "bolt"
-                if item.category == 'WATER':
-                    category_icon = "water_drop"
-                elif item.category == 'ROADS':
-                    category_icon = "construction"
-                elif item.category == 'EMERGENCY':
-                    category_icon = "warning"
-                elif item.category in ['IMPORTANT', 'EVENT']:
+                if item.is_urgent:
+                    category_icon = "emergency"
+                    if item.category == Announcement.Category.MISSING_CHILD:
+                        category_icon = "person_search"
+                    elif item.category == Announcement.Category.MISSING_PERSON:
+                        category_icon = "person_search"
+                    elif item.category == Announcement.Category.FIRE:
+                        category_icon = "local_fire_department"
+                    elif item.category == Announcement.Category.ACCIDENT:
+                        category_icon = "car_crash"
+                    elif item.category == Announcement.Category.DANGER:
+                        category_icon = "warning"
+
+                    badge_style = "bg-red-600 text-white font-bold shadow-xs"
+                    icon_style = "bg-red-100 text-red-600"
+                    type_label = "Срочно"
+                else:
                     category_icon = "campaign"
+                    if item.category == Announcement.Category.ELECTRICITY:
+                        category_icon = "bolt"
+                    elif item.category == Announcement.Category.WATER:
+                        category_icon = "water_drop"
+                    elif item.category == Announcement.Category.ROADS:
+                        category_icon = "construction"
+                    elif item.category == Announcement.Category.EMERGENCY:
+                        category_icon = "warning"
+
+                    badge_style = "bg-amber-100 text-amber-900 border border-amber-200 font-bold"
+                    icon_style = "bg-amber-100 text-amber-800"
+                    type_label = "Оповещение"
 
                 images = []
                 if item.image:
@@ -103,21 +124,31 @@ class FeedAggregator:
                 items.append(FeedItem(
                     id=f"notification-{item.id}",
                     type="notification",
-                    type_label="Оповещение",
+                    type_label=type_label,
                     title=item.title,
                     badge=item.get_category_display(),
-                    badge_style="bg-amber-100 text-amber-900 border border-amber-200 font-bold",
+                    badge_style=badge_style,
                     icon=category_icon,
-                    icon_style="bg-amber-100 text-amber-800",
+                    icon_style=icon_style,
                     time_str=get_relative_time_str(item.publish_date),
                     timestamp=int(item.publish_date.timestamp()) if item.publish_date else 0,
                     images=images,
                     details={
+                        "is_urgent": item.is_urgent,
+                        "category": item.category,
                         "category_display": item.get_category_display(),
                         "village": item.village,
                         "description": item.description,
                         "publish_date_str": date_format(timezone.localtime(item.publish_date), "j E, H:i") if item.publish_date else "",
                         "is_important": item.is_important,
+                        "location": item.location,
+                        "incident_time": item.incident_time,
+                        "contact_phone": item.contact_phone,
+                        "child_name": item.child_name,
+                        "child_age": item.child_age,
+                        "appearance": item.appearance,
+                        "clothing": item.clothing,
+                        "extra_info": item.extra_info,
                     }
                 ))
         else:

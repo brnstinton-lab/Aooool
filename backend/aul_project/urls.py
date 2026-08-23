@@ -22,6 +22,7 @@ urlpatterns = [
     path('trips/', include('apps.trips.urls')),
     path('ads/', include('apps.ads.urls')),
     path('directory/', include('apps.directory.urls')),
+    path('api/weather/', include('apps.weather.urls')),
 ]
 
 

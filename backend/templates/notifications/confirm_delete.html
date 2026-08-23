@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Удаление оповещения{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4 text-center">
+    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+        <span class="material-symbols-rounded text-3xl">delete_forever</span>
+    </div>
+
+    <div class="space-y-1">
+        <h1 class="text-lg font-bold text-slate-900">Удалить оповещение?</h1>
+        <p class="text-xs text-slate-500">Запись «{{ announcement.title }}» будет перенесена в архив и скрыта от жителей.</p>
+    </div>
+
+    <form method="post" class="space-y-2 pt-2">
+        {% csrf_token %}
+        <button type="submit" class="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition shadow-xs">
+            Да, архивировать запись
+        </button>
+        <a href="{% url 'notifications:list' %}" class="w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition block">
+            Отмена
+        </a>
+    </form>
+</div>
+{% endblock %}

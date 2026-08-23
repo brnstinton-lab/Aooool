@@ -1,94 +1,311 @@
 {% extends "base.html" %}
 
-{% block title %}AUL — Официальные объявления | Свой посёлок. Свои люди.{% endblock %}
+{% block title %}AUL — Оповещения аула | Срочные происшествия и официальные сообщения{% endblock %}
 
 {% block content %}
-<div class="space-y-4">
-    <!-- Header Card -->
-    <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200/80 flex items-center gap-3">
-        <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-            <span class="material-symbols-rounded text-2xl">campaign</span>
+<div class="space-y-4" x-data="{ expandedId: null }">
+    <!-- Header Card with Action Buttons -->
+    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200/80 space-y-3">
+        <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <span class="material-symbols-rounded text-2xl">campaign</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-amber-950">Оповещения села</h1>
+                    <p class="text-xs text-amber-800 leading-snug">Срочные происшествия и официальные объявления служб.</p>
+                </div>
+            </div>
         </div>
-        <div>
-            <h1 class="text-lg font-bold text-amber-950">📢 Официальные объявления</h1>
-            <p class="text-xs text-amber-800 leading-snug">Важные оповещения об отключениях воды, света, ремонте дорог и событиях акимата.</p>
+
+        <!-- Quick Action Buttons -->
+        <div class="flex items-center gap-2 pt-1">
+            <a href="{% url 'notifications:create_urgent' %}" class="flex-1 py-2.5 px-3 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5">
+                <span class="material-symbols-rounded text-base">emergency</span>
+                <span>Сообщить о происшествии</span>
+            </a>
+
+            {% if can_create_official %}
+                <a href="{% url 'notifications:create_official' %}" class="py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 shrink-0">
+                    <span class="material-symbols-rounded text-base">campaign</span>
+                    <span>Официальное</span>
+                </a>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Filter Chips -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <a href="{% url 'notifications:list' %}" class="{% if not selected_category %}bg-amber-600 text-white{% else %}bg-white text-slate-700 border border-slate-200 hover:bg-slate-50{% endif %} px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition">
-            Все ({% if announcements %}{{ announcements|length }}{% else %}0{% endif %})
+    <!-- Type Tabs: Все / 🚨 Срочные / 📢 Официальные -->
+    <div class="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto scrollbar-none">
+        <a href="{% url 'notifications:list' %}" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition {% if not selected_type and not selected_category %}bg-slate-900 text-white{% else %}bg-white text-slate-700 border border-slate-200 hover:bg-slate-50{% endif %}">
+            Все ({{ announcements|length }})
         </a>
+        <a href="?type=urgent" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition flex items-center gap-1 {% if selected_type == 'urgent' %}bg-red-600 text-white{% else %}bg-white text-red-700 border border-red-200 hover:bg-red-50{% endif %}">
+            <span class="material-symbols-rounded text-sm">emergency</span>
+            Срочные происшествия ({{ urgent_count }})
+        </a>
+        <a href="?type=official" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition flex items-center gap-1 {% if selected_type == 'official' %}bg-amber-600 text-white{% else %}bg-white text-amber-800 border border-amber-200 hover:bg-amber-50{% endif %}">
+            <span class="material-symbols-rounded text-sm">campaign</span>
+            Официальные ({{ official_count }})
+        </a>
+    </div>
+
+    <!-- Filter Chips for Categories -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <span class="text-[11px] font-semibold text-slate-400 shrink-0 pl-1">Категории:</span>
         {% for cat_val, cat_name in categories %}
-            <a href="?category={{ cat_val }}" class="{% if selected_category == cat_val %}bg-amber-600 text-white font-bold{% else %}bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-medium{% endif %} px-3 py-1.5 rounded-full text-xs shrink-0 transition">
+            <a href="?category={{ cat_val }}" class="{% if selected_category == cat_val %}bg-slate-800 text-white font-bold{% else %}bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 font-medium{% endif %} px-2.5 py-1 rounded-lg text-[11px] shrink-0 transition">
                 {{ cat_name }}
             </a>
         {% endfor %}
     </div>
 
-    <!-- Alert List -->
-    <div class="space-y-3">
+    <!-- Alerts Feed List (Accordion) -->
+    <div class="space-y-3 pt-1">
         {% for item in announcements %}
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs space-y-2 relative">
-                {% if item.is_pinned %}
-                    <span class="absolute top-3 right-3 text-amber-500 font-bold text-xs flex items-center gap-0.5" title="Закреплено">
-                        <span class="material-symbols-rounded text-base">push_pin</span>
-                    </span>
-                {% endif %}
-                
-                <div class="flex items-start justify-between gap-2 pr-6">
-                    <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg text-xs font-bold">
-                        {% if item.category == 'ELECTRICITY' %}
-                            <span class="material-symbols-rounded text-sm">bolt</span>
-                        {% elif item.category == 'WATER' %}
-                            <span class="material-symbols-rounded text-sm">water_drop</span>
-                        {% elif item.category == 'ROADS' %}
-                            <span class="material-symbols-rounded text-sm">construction</span>
-                        {% elif item.category == 'EMERGENCY' %}
-                            <span class="material-symbols-rounded text-sm">warning</span>
-                        {% else %}
-                            <span class="material-symbols-rounded text-sm">campaign</span>
-                        {% endif %}
-                        {{ item.get_category_display }}
-                    </span>
-                    <span class="text-[11px] font-semibold text-slate-400">{{ item.publish_date|date:"j E, H:i" }}</span>
-                </div>
+            {% if item.is_urgent %}
+                <!-- 1. URGENT ANNOUNCEMENT CARD (Срочное происшествие) -->
+                <div class="bg-white rounded-2xl border-2 border-red-500/80 shadow-sm overflow-hidden transition-all duration-200">
+                    <!-- Collapsed Header Card (Always Visible) -->
+                    <div @click="expandedId = (expandedId === '{{ item.id }}' ? null : '{{ item.id }}')"
+                         class="p-4 cursor-pointer select-none hover:bg-red-50/40 transition flex items-center justify-between gap-3">
+                        <div class="min-w-0 space-y-1.5 flex-1">
+                            <!-- Top Ribbon -->
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="inline-flex items-center gap-1 bg-red-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold shadow-xs">
+                                        <span class="material-symbols-rounded text-sm">emergency</span>
+                                        {{ item.get_category_display }}
+                                    </span>
+                                    <span class="bg-red-100 text-red-800 text-[11px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                                        СРОЧНО
+                                    </span>
+                                </div>
+                                
+                                <div class="flex items-center gap-1 text-[11px] font-semibold text-slate-400 shrink-0">
+                                    <span>{{ item.publish_date|date:"j E, H:i" }}</span>
+                                    {% if user == item.user or user.is_staff or user.role == 'admin' %}
+                                        <a href="{% url 'notifications:delete' item.id %}" 
+                                           @click.stop
+                                           class="ml-1 text-slate-400 hover:text-red-600 p-1 transition-colors" 
+                                           title="Удалить / В архив">
+                                            <span class="material-symbols-rounded text-base">delete</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
 
-                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                    {% if item.is_important %}
-                        <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">Важное</span>
-                    {% endif %}
-                    {{ item.title }}
-                </h3>
+                            <!-- Title -->
+                            <h3 class="font-bold text-slate-900 text-base leading-snug">
+                                {{ item.title }}
+                            </h3>
+                        </div>
 
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    {{ item.description }}
-                </p>
-
-                {% if item.image %}
-                    <div class="pt-1">
-                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="rounded-xl max-h-48 w-full object-cover border border-slate-100" />
+                        <!-- Toggle Arrow Button ▼ -->
+                        <div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0 transition-colors">
+                            <span class="material-symbols-rounded text-[22px] transition-transform duration-300"
+                                  :class="expandedId === '{{ item.id }}' ? 'rotate-180' : ''">
+                                expand_more
+                            </span>
+                        </div>
                     </div>
-                {% endif %}
 
-                <div class="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
-                    <span>📍 {{ item.village }}</span>
-                    {% if item.expire_date %}
-                        <span class="text-slate-400 text-[11px]">Действует до: {{ item.expire_date|date:"j E, H:i" }}</span>
-                    {% else %}
-                        <span class="text-amber-700 font-semibold">Официально</span>
-                    {% endif %}
+                    <!-- Expanded Body Content (Accordion) -->
+                    <div x-show="expandedId === '{{ item.id }}'"
+                         x-collapse
+                         class="px-4 pb-4 pt-1 border-t border-red-100 space-y-3">
+                        
+                        <!-- Special Missing Child Section -->
+                        {% if item.category == 'MISSING_CHILD' %}
+                            <div class="bg-red-50/70 rounded-xl p-3 border border-red-100 space-y-2 text-xs">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 font-medium text-slate-800">
+                                    {% if item.child_name %}
+                                        <div><span class="text-slate-500">Имя:</span> <b>{{ item.child_name }}</b></div>
+                                    {% endif %}
+                                    {% if item.child_age %}
+                                        <div><span class="text-slate-500">Возраст:</span> <b>{{ item.child_age }}</b></div>
+                                    {% endif %}
+                                    {% if item.location %}
+                                        <div class="sm:col-span-2"><span class="text-slate-500">Где видели:</span> <b>{{ item.location }}</b></div>
+                                    {% endif %}
+                                    {% if item.incident_time %}
+                                        <div class="sm:col-span-2"><span class="text-slate-500">Время:</span> <b>{{ item.incident_time }}</b></div>
+                                    {% endif %}
+                                </div>
+
+                                {% if item.clothing %}
+                                    <div class="text-slate-700 pt-1 border-t border-red-100">
+                                        <span class="text-slate-500">Одежда:</span> {{ item.clothing }}
+                                    </div>
+                                {% endif %}
+
+                                {% if item.appearance %}
+                                    <div class="text-slate-700">
+                                        <span class="text-slate-500">Приметы:</span> {{ item.appearance }}
+                                    </div>
+                                {% endif %}
+
+                                {% if item.extra_info %}
+                                    <div class="text-slate-600 italic">
+                                        <span class="text-slate-500 not-italic font-semibold">Важно:</span> {{ item.extra_info }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <!-- Other urgent description -->
+                            <p class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">
+                                {{ item.description }}
+                            </p>
+                            
+                            {% if item.location or item.incident_time %}
+                                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl">
+                                    {% if item.location %}
+                                        <span class="flex items-center gap-1">
+                                            <span class="material-symbols-rounded text-sm text-red-600">location_on</span>
+                                            {{ item.location }}
+                                        </span>
+                                    {% endif %}
+                                    {% if item.incident_time %}
+                                        <span class="flex items-center gap-1">
+                                            <span class="material-symbols-rounded text-sm text-slate-400">schedule</span>
+                                            {{ item.incident_time }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
+                        <!-- Photo (Only rendered if image exists inside expanded accordion) -->
+                        {% if item.image %}
+                            <template x-if="expandedId === '{{ item.id }}'">
+                                <div class="pt-1">
+                                    <img src="{{ item.image.url }}" alt="{{ item.title }}" loading="lazy" class="rounded-xl max-h-64 w-full object-cover border border-slate-200 shadow-xs" />
+                                </div>
+                            </template>
+                        {% endif %}
+
+                        <!-- Action Bar (Phone Call / Contact) -->
+                        {% if item.contact_phone %}
+                            <div class="pt-2 flex items-center justify-between gap-2 border-t border-slate-100">
+                                <span class="text-xs text-slate-500">📍 {{ item.village }}</span>
+                                
+                                <div class="flex items-center gap-2">
+                                    <a href="tel:{{ item.contact_phone }}" 
+                                       @click.stop
+                                       class="py-2 px-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
+                                        <span class="material-symbols-rounded text-base">call</span>
+                                        <span>{{ item.contact_phone }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
+                                <span>📍 {{ item.village }}</span>
+                                <span class="text-slate-400">Автор: {{ item.user.get_full_name|default:item.user.username|default:"Житель села" }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+
+            {% else %}
+                <!-- 2. OFFICIAL ANNOUNCEMENT CARD (Официальное объявление) -->
+                <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden transition-all duration-200">
+                    <!-- Collapsed Header Card (Always Visible) -->
+                    <div @click="expandedId = (expandedId === '{{ item.id }}' ? null : '{{ item.id }}')"
+                         class="p-4 cursor-pointer select-none hover:bg-slate-50/80 transition flex items-center justify-between gap-3 relative">
+                        
+                        <div class="min-w-0 space-y-1.5 flex-1">
+                            <!-- Top Badges & Meta -->
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2.5 py-1 rounded-lg text-xs font-bold">
+                                        {% if item.category == 'ELECTRICITY' %}
+                                            <span class="material-symbols-rounded text-sm">bolt</span>
+                                        {% elif item.category == 'WATER' %}
+                                            <span class="material-symbols-rounded text-sm">water_drop</span>
+                                        {% elif item.category == 'ROADS' %}
+                                            <span class="material-symbols-rounded text-sm">construction</span>
+                                        {% elif item.category == 'EMERGENCY' %}
+                                            <span class="material-symbols-rounded text-sm">warning</span>
+                                        {% else %}
+                                            <span class="material-symbols-rounded text-sm">campaign</span>
+                                        {% endif %}
+                                        {{ item.get_category_display }}
+                                    </span>
+
+                                    {% if item.is_pinned %}
+                                        <span class="text-amber-600 font-bold text-xs flex items-center gap-0.5" title="Закреплено">
+                                            <span class="material-symbols-rounded text-sm">push_pin</span>
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="flex items-center gap-1 text-[11px] font-semibold text-slate-400 shrink-0">
+                                    <span>{{ item.publish_date|date:"j E, H:i" }}</span>
+                                    {% if user == item.user or user.is_staff or user.role == 'admin' %}
+                                        <a href="{% url 'notifications:delete' item.id %}" 
+                                           @click.stop
+                                           class="ml-1 text-slate-400 hover:text-red-600 p-1 transition-colors" 
+                                           title="Удалить">
+                                            <span class="material-symbols-rounded text-base">delete</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Title -->
+                            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5 leading-snug">
+                                {% if item.is_important %}
+                                    <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-2 py-0.5 rounded uppercase shrink-0">Важное</span>
+                                {% endif %}
+                                <span>{{ item.title }}</span>
+                            </h3>
+                        </div>
+
+                        <!-- Toggle Arrow Button ▼ -->
+                        <div class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center shrink-0 transition-colors">
+                            <span class="material-symbols-rounded text-[22px] transition-transform duration-300"
+                                  :class="expandedId === '{{ item.id }}' ? 'rotate-180 text-amber-600' : ''">
+                                expand_more
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Expanded Body Content (Accordion) -->
+                    <div x-show="expandedId === '{{ item.id }}'"
+                         x-collapse
+                         class="px-4 pb-4 pt-1 border-t border-slate-100 space-y-3">
+                        
+                        <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                            {{ item.description }}
+                        </p>
+
+                        <!-- Photo (Only rendered if image exists inside expanded accordion) -->
+                        {% if item.image %}
+                            <template x-if="expandedId === '{{ item.id }}'">
+                                <div class="pt-1">
+                                    <img src="{{ item.image.url }}" alt="{{ item.title }}" loading="lazy" class="rounded-xl max-h-48 w-full object-cover border border-slate-100 shadow-xs" />
+                                </div>
+                            </template>
+                        {% endif %}
+
+                        <div class="pt-2 flex items-center justify-between text-xs text-slate-500 border-t border-slate-100">
+                            <span>📍 {{ item.village }}</span>
+                            {% if item.expire_date %}
+                                <span class="text-slate-400 text-[11px]">Действует до: {{ item.expire_date|date:"j E, H:i" }}</span>
+                            {% else %}
+                                <span class="text-amber-700 font-semibold">Официально</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         {% empty %}
             <div class="bg-white rounded-2xl p-8 text-center text-slate-500 space-y-2 border border-slate-200">
                 <span class="material-symbols-rounded text-4xl text-slate-300">notifications_off</span>
-                <p class="text-sm font-medium">Нет активных объявлений</p>
+                <p class="text-sm font-medium">Нет активных оповещений</p>
                 <p class="text-xs text-slate-400">В выбранной категории сейчас нет записей.</p>
             </div>
         {% endfor %}
     </div>
 </div>
 {% endblock %}
-

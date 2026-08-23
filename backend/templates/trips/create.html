@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}AUL — Добавить поездку{% endblock %}
+{% block title %}AUL — {% if is_edit %}Редактировать поездку{% else %}Добавить поездку{% endif %}{% endblock %}
 
 {% block content %}
 <div class="space-y-4 max-w-lg mx-auto">
@@ -10,14 +10,14 @@
             <span class="material-symbols-rounded">arrow_back</span>
         </a>
         <div>
-            <h1 class="text-lg font-bold text-slate-900">Добавить поездку</h1>
-            <p class="text-xs text-slate-500">Заполните детали для поиска попутчиков</p>
+            <h1 class="text-lg font-bold text-slate-900">{% if is_edit %}Редактировать поездку{% else %}Добавить поездку{% endif %}</h1>
+            <p class="text-xs text-slate-500">{% if is_edit %}Измените детали поездки{% else %}Заполните детали для поиска попутчиков{% endif %}</p>
         </div>
     </div>
 
     <!-- Form Card -->
     <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-xs">
-        <form method="post" action="{% url 'trips:create' %}" class="space-y-4">
+        <form method="post" action="{% if is_edit and trip %}{% url 'trips:edit' trip.id %}{% else %}{% url 'trips:create' %}{% endif %}" class="space-y-4">
             {% csrf_token %}
 
             <!-- Маршрут -->

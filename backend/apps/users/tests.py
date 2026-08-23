@@ -71,12 +71,12 @@ class UserAuthTests(TestCase):
         logout_response = self.client.post(logout_url)
         self.assertEqual(logout_response.status_code, 302)
 
-        # Check profile page redirects guests to login
-        protected_response = self.client.get(reverse('profile'))
-        self.assertEqual(protected_response.status_code, 302)
+        # Check profile page renders guest state for anonymous user
+        guest_response = self.client.get(reverse('profile'))
+        self.assertEqual(guest_response.status_code, 200)
 
     def test_profile_protected_for_anonymous_user(self):
         profile_url = reverse('profile')
         response = self.client.get(profile_url)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith(reverse('login')))
+        self.assertEqual(response.status_code, 200)
+

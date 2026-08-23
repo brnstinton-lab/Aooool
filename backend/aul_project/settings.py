@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.trips',
     'apps.ads',
     'apps.directory',
+    'apps.weather',
 ]
 
 # Кастомная модель пользователя
@@ -132,4 +133,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'profile'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Кэширование (локальная память для разработки / быстрого ответа)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'aul-cache-local',
+    }
+}
+
+# География и настройки погоды AUL (село Кабанбай, Жетысуская / Алматинская область)
+WEATHER_LATITUDE = float(os.getenv('WEATHER_LATITUDE', '45.8344'))
+WEATHER_LONGITUDE = float(os.getenv('WEATHER_LONGITUDE', '80.6067'))
+WEATHER_LOCATION_NAME = os.getenv('WEATHER_LOCATION_NAME', 'Кабанбай')
+WEATHER_CACHE_TIMEOUT = int(os.getenv('WEATHER_CACHE_TIMEOUT', '600'))  # 10 минут
 
