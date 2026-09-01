@@ -60,3 +60,16 @@ if (window.Alpine) {
 }
 
 
+
+/* AUL Web Push — Service Worker registration */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/js/sw.js')
+            .then(registration => {
+                console.log('[AUL Push] Service Worker registered:', registration.scope);
+            })
+            .catch(error => {
+                console.error('[AUL Push] Service Worker registration failed:', error);
+            });
+    });
+}
