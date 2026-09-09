@@ -11,15 +11,29 @@ self.addEventListener("activate", event => {
 self.addEventListener("push", event => {
     if (!event.data) return;
 
-    const data = event.data.json();
+    let data = {};
+    try {
+        data = event.data.json();
+    } catch (err) {
+        data = {
+            title: "AUL Оповещение",
+            body: typeof event.data.text === "function" ? event.data.text() : ""
+        };
+    }
 
-    const title = data.title || "AUL";
+    const title = data.title || "AUL Оповещение";
     const options = {
         body: data.body || "",
         icon: data.icon || "/static/images/icon-192.png",
         badge: data.badge || "/static/images/icon-192.png",
+        vibrate: [200, 100, 200],
+        tag: data.tag || `aul-notification-${data.announcement_id || Date.now()}`,
+        renotify: true,
         data: {
-            url: data.url || "/"
+            url: data.url || "/notifications/",
+            type: data.type,
+            category: data.category,
+            announcement_id: data.announcement_id
         }
     };
 
@@ -31,7 +45,8 @@ self.addEventListener("push", event => {
 self.addEventListener("notificationclick", event => {
     event.notification.close();
 
-    const url = event.notification.data?.url || "/";
+    const targetPath = event.notification.data?.url || "/notifications/";
+    const targetUrl = new URL(targetPath, self.location.origin).href;
 
     event.waitUntil(
         clients.matchAll({
@@ -40,13 +55,15 @@ self.addEventListener("notificationclick", event => {
         }).then(clientList => {
             for (const client of clientList) {
                 if ("focus" in client) {
-                    client.navigate(url);
+                    if ("navigate" in client) {
+                        client.navigate(targetUrl);
+                    }
                     return client.focus();
                 }
             }
 
             if (clients.openWindow) {
-                return clients.openWindow(url);
+                return clients.openWindow(targetUrl);
             }
         })
     );

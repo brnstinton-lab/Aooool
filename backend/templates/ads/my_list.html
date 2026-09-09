@@ -34,9 +34,12 @@
                         <span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
                             {{ item.get_ad_type_display }}
                         </span>
-                        <span class="bg-slate-100 text-slate-700 border border-slate-200 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                            {{ item.get_category_display }}
+                        {% if item.expire_date %}
+                        <span class="bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <span class="material-symbols-rounded text-xs">schedule</span>
+                            До {{ item.expire_date|date:"d.m.Y H:i" }}
                         </span>
+                        {% endif %}
                         {% if item.status == 'active' %}
                             <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

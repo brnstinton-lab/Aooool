@@ -1,5 +1,7 @@
 from django import forms
+from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -305,3 +307,15 @@ def services_view(request):
     """Страница всех сервисов села"""
     return render(request, 'services.html')
 
+
+
+def service_worker_view(request):
+    sw_path = settings.BASE_DIR / 'static' / 'js' / 'sw.js'
+
+    with open(sw_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    return HttpResponse(
+        content,
+        content_type='application/javascript'
+    )

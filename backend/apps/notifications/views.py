@@ -5,9 +5,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from apps.users.models import Role
-from .models import Announcement
+from .models import Announcement, PushSubscription
 from .forms import UrgentNotificationForm, OfficialNotificationForm
-
+from .push_service import send_push_notification
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.conf import settings
 
 def notification_list(request):
     """Отображение списка всех активных и непросроченных оповещений аула"""
@@ -79,6 +84,12 @@ def create_urgent_view(request):
             announcement.publish_date = timezone.now()
             announcement.save()
 
+            # Отправка Web Push уведомления всем жителям аула
+            try:
+                send_push_notification(announcement)
+            except Exception:
+                pass
+
             messages.success(
                 request,
                 '🚨 Срочное происшествие опубликовано и сразу доступно всем жителям!'
@@ -135,6 +146,14 @@ def create_official_view(request):
 
             announcement.publish_date = timezone.now()
             announcement.save()
+
+            # Отправка Web Push уведомления только для сразу опубликованных (ACTIVE) оповещений
+            if announcement.status == Announcement.Status.ACTIVE:
+                try:
+                    send_push_notification(announcement)
+                except Exception:
+                    pass
+
             return redirect('notifications:list')
         else:
             messages.error(request, 'Пожалуйста, проверьте введённые данные.')
@@ -181,3 +200,47 @@ def delete_notification_view(request, pk):
         return redirect('notifications:list')
 
     return render(request, 'notifications/confirm_delete.html', {'announcement': announcement})
+
+@require_POST
+def push_subscribe_view(request):
+    """Сохраняет Push-подписку браузера."""
+    try:
+        data = json.loads(request.body)
+        subscription = data.get("subscription", data)
+
+        endpoint = subscription.get("endpoint")
+        keys = subscription.get("keys", {})
+
+        p256dh = keys.get("p256dh")
+        auth = keys.get("auth")
+
+        if not endpoint or not p256dh or not auth:
+            return JsonResponse(
+                {"error": "Некорректная Push-подписка"},
+                status=400,
+            )
+
+        push_subscription, created = PushSubscription.objects.update_or_create(
+            endpoint=endpoint,
+            defaults={
+                "user": request.user if request.user.is_authenticated else None,
+                "p256dh": p256dh,
+                "auth": auth,
+            },
+        )
+
+        return JsonResponse({
+            "success": True,
+            "created": created,
+        })
+
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        return JsonResponse(
+            {"error": "Некорректный JSON"},
+            status=400,
+        )
+@ensure_csrf_cookie
+def vapid_public_key_view(request):
+    return JsonResponse({
+        "publicKey": settings.VAPID_PUBLIC_KEY
+    })

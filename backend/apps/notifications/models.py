@@ -155,4 +155,38 @@ class Announcement(models.Model):
     @property
     def is_official(self):
         return self.announcement_type == self.AnnouncementType.OFFICIAL
+class PushSubscription(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="push_subscriptions",
+        verbose_name="Пользователь",
+    )
+    endpoint = models.TextField(
+        unique=True,
+        verbose_name="Push endpoint",
+    )
+    p256dh = models.TextField(
+        verbose_name="P256DH key",
+    )
+    auth = models.TextField(
+        verbose_name="Auth key",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата подписки",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Дата обновления",
+    )
 
+    class Meta:
+        verbose_name = "Push-подписка"
+        verbose_name_plural = "Push-подписки"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Push subscription #{self.pk}"

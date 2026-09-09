@@ -6,9 +6,18 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from .views import home_view, feed_view, search_view, profile_view, profile_edit_view, services_view
+from .views import (
+    home_view,
+    feed_view,
+    search_view,
+    profile_view,
+    profile_edit_view,
+    services_view,
+    service_worker_view,
+)
 
 urlpatterns = [
+    path('sw.js', service_worker_view, name='service_worker'),
     path('', home_view, name='home'),
     path('feed/', feed_view, name='feed'),
     path('search/', search_view, name='search'),

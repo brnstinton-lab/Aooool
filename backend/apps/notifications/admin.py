@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Announcement
+from .models import Announcement, PushSubscription
+from .push_service import send_push_notification
 
 
 @admin.register(Announcement)
@@ -82,8 +83,17 @@ class AnnouncementAdmin(admin.ModelAdmin):
 
     @admin.action(description="✅ Одобрить и опубликовать (ACTIVE)")
     def approve_announcements(self, request, queryset):
-        count = queryset.update(status=Announcement.Status.ACTIVE)
-        self.message_user(request, f"Опубликовано объявлений: {count}")
+        count = 0
+        for announcement in queryset:
+            if announcement.status != Announcement.Status.ACTIVE:
+                announcement.status = Announcement.Status.ACTIVE
+                announcement.save(update_fields=['status'])
+                count += 1
+                try:
+                    send_push_notification(announcement)
+                except Exception:
+                    pass
+        self.message_user(request, f"Опубликовано и разослано Push-уведомлений: {count}")
 
     @admin.action(description="📦 Перенести в архив (ARCHIVED)")
     def archive_announcements(self, request, queryset):
@@ -94,3 +104,16 @@ class AnnouncementAdmin(admin.ModelAdmin):
     def reject_announcements(self, request, queryset):
         count = queryset.update(status=Announcement.Status.REJECTED)
         self.message_user(request, f"Отклонено объявлений: {count}")
+
+
+@admin.register(PushSubscription)
+class PushSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'endpoint_short', 'created_at', 'updated_at')
+    list_filter = ('created_at',)
+    search_fields = ('endpoint', 'user__username', 'user__first_name', 'user__last_name')
+    readonly_fields = ('endpoint', 'p256dh', 'auth', 'created_at', 'updated_at')
+
+    def endpoint_short(self, obj):
+        return obj.endpoint[:60] + '...' if len(obj.endpoint) > 60 else obj.endpoint
+    endpoint_short.short_description = "Endpoint"
+

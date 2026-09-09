@@ -6,11 +6,12 @@ from django.conf import settings
 
 class AdQuerySet(models.QuerySet):
     def active(self):
-        """Возвращает только активные объявления (со статусом ACTIVE и не старше 30 дней)"""
-        cutoff = timezone.now() - timedelta(days=Ad.EXPIRATION_DAYS)
+        """Возвращает только активные объявления (со статусом ACTIVE и не истекшим expire_date)"""
+        now = timezone.now()
         return self.filter(
-            status=self.model.Status.ACTIVE,
-            created_at__gte=cutoff
+            status=self.model.Status.ACTIVE
+        ).filter(
+            models.Q(expire_date__isnull=True) | models.Q(expire_date__gt=now)
         )
 
 
@@ -24,8 +25,6 @@ class AdManager(models.Manager):
 
 class Ad(models.Model):
     """Модель объявления"""
-
-    EXPIRATION_DAYS = 30
 
     class AdType(models.TextChoices):
         SELL = 'SELL', 'Продам'
@@ -67,7 +66,16 @@ class Ad(models.Model):
     category = models.CharField(
         max_length=30,
         choices=Category.choices,
+        blank=True,
+        null=True,
+        default=Category.OTHER,
         verbose_name="Категория"
+    )
+    expire_date = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name="Действует до"
     )
     description = models.TextField(verbose_name="Описание")
     phone = models.CharField(max_length=30, verbose_name="Телефон")
@@ -143,11 +151,10 @@ class Ad(models.Model):
             return date_format(timezone.localtime(self.created_at), "j E")
 
     def is_expired(self) -> bool:
-        """Проверяет, истекли ли 30 дней с момента публикации объявления"""
-        if not self.created_at:
+        """Проверяет, истек ли указанный пользователем срок действия объявления"""
+        if not self.expire_date:
             return False
-        expiration_date = self.created_at + timedelta(days=self.EXPIRATION_DAYS)
-        return timezone.now() >= expiration_date
+        return timezone.now() >= self.expire_date
 
     def archive_if_expired(self) -> bool:
         """Переводит объявление в статус ARCHIVED, если его срок действия истек"""

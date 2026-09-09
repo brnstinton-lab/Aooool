@@ -64,12 +64,106 @@ if (window.Alpine) {
 /* AUL Web Push — Service Worker registration */
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/js/sw.js')
+        navigator.serviceWorker.register('/sw.js')
             .then(registration => {
                 console.log('[AUL Push] Service Worker registered:', registration.scope);
+                subscribeToPush(registration);
             })
             .catch(error => {
                 console.error('[AUL Push] Service Worker registration failed:', error);
             });
     });
+}
+/* AUL Web Push — browser subscription */
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = atob(base64);
+
+    return Uint8Array.from(
+        [...rawData].map(char => char.charCodeAt(0))
+    );
+}
+async function subscribeToPush(registration) {
+    try {
+        if (!('PushManager' in window)) {
+            console.warn('[AUL Push] Push API is not supported');
+            return;
+        }
+
+        const vapidResponse = await fetch(
+            '/notifications/push/vapid-public-key/'
+        );
+
+        if (!vapidResponse.ok) {
+            throw new Error('Не удалось получить VAPID public key');
+        }
+
+        const { publicKey } = await vapidResponse.json();
+
+        if (!publicKey) {
+            throw new Error('VAPID public key отсутствует');
+        }
+
+        const permission = await Notification.requestPermission();
+
+        if (permission !== 'granted') {
+            console.log('[AUL Push] Notification permission:', permission);
+            return;
+        }
+
+        let subscription = await registration.pushManager.getSubscription();
+
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
+        }
+
+        const response = await fetch(
+            '/notifications/push/subscribe/',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    subscription: subscription.toJSON()
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Не удалось сохранить Push-подписку');
+        }
+
+        const result = await response.json();
+
+        console.log('[AUL Push] Subscription saved:', result);
+
+    } catch (error) {
+        console.error('[AUL Push] Subscription failed:', error);
+    }
+}
+
+
+/* Django CSRF cookie */
+function getCookie(name) {
+    const cookies = document.cookie ? document.cookie.split(';') : [];
+
+    for (const cookie of cookies) {
+        const [key, ...value] = cookie.trim().split('=');
+
+        if (key === name) {
+            return decodeURIComponent(value.join('='));
+        }
+    }
+
+    return null;
 }

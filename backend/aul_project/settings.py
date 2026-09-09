@@ -4,9 +4,14 @@ Django settings for AUL project.
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # BASE_DIR указывает на папку backend/
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
+# Включаем директорию apps в sys.path для удобного импорта приложений
+import sys
 
 # Включаем директорию apps в sys.path для удобного импорта приложений
 import sys
@@ -14,6 +19,11 @@ sys.path.insert(0, str(BASE_DIR / 'apps'))
 
 # Секретный ключ для разработки
 SECRET_KEY = 'django-insecure-aul-development-key-change-in-production'
+
+# VAPID настройки для Web Push
+VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY')
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY')
+VAPID_CLAIMS_EMAIL = os.getenv('VAPID_CLAIMS_EMAIL')
 
 # Режим отладки
 DEBUG = True

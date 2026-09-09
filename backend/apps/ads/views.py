@@ -1,6 +1,8 @@
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from .models import Ad, AdImage
 
 
@@ -19,7 +21,8 @@ def ad_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
         ad_type = request.POST.get('ad_type', '').strip()
-        category = request.POST.get('category', '').strip()
+        expire_date_raw = request.POST.get('expire_date', '').strip()
+        expire_time_raw = request.POST.get('expire_time', '').strip()
         description = request.POST.get('description', '').strip()
         phone = request.POST.get('phone', '').strip()
         price_raw = request.POST.get('price', '').strip()
@@ -28,7 +31,8 @@ def ad_create(request):
         form_data = {
             'title': title,
             'ad_type': ad_type,
-            'category': category,
+            'expire_date': expire_date_raw,
+            'expire_time': expire_time_raw,
             'description': description,
             'phone': phone,
             'price': price_raw,
@@ -43,9 +47,19 @@ def ad_create(request):
         if not ad_type or ad_type not in valid_types:
             errors['ad_type'] = 'Выберите тип объявления'
 
-        valid_categories = [choice[0] for choice in Ad.Category.choices]
-        if not category or category not in valid_categories:
-            errors['category'] = 'Выберите категорию'
+        # Валидация срока действия объявления
+        expire_dt = None
+        if not expire_date_raw or not expire_time_raw:
+            errors['expire_date'] = 'Укажите дату и время окончания срока действия'
+        else:
+            try:
+                naive_dt = datetime.strptime(f"{expire_date_raw} {expire_time_raw}", "%Y-%m-%d %H:%M")
+                tz = timezone.get_current_timezone()
+                expire_dt = timezone.make_aware(naive_dt, tz)
+                if expire_dt <= timezone.now():
+                    errors['expire_date'] = 'Дата окончания должна быть в будущем.'
+            except (ValueError, TypeError):
+                errors['expire_date'] = 'Укажите корректную дату и время'
 
         if not description:
             errors['description'] = 'Укажите описание объявления'
@@ -88,7 +102,7 @@ def ad_create(request):
                 user=request.user,
                 title=title,
                 ad_type=ad_type,
-                category=category,
+                expire_date=expire_dt,
                 description=description,
                 phone=phone,
                 price=price,
@@ -110,7 +124,6 @@ def ad_create(request):
 
     return render(request, 'ads/create.html', {
         'ad_types': Ad.AdType.choices,
-        'categories': Ad.Category.choices,
         'errors': errors,
         'form_data': form_data,
     })
@@ -125,10 +138,12 @@ def ad_edit(request, ad_id):
         return redirect('ads:list')
 
     errors = {}
+    local_expire = timezone.localtime(ad.expire_date) if ad.expire_date else None
     form_data = {
         'title': ad.title,
         'ad_type': ad.ad_type,
-        'category': ad.category,
+        'expire_date': local_expire.strftime('%Y-%m-%d') if local_expire else '',
+        'expire_time': local_expire.strftime('%H:%M') if local_expire else '',
         'description': ad.description,
         'phone': ad.phone,
         'price': str(ad.price) if ad.price is not None else '',
@@ -138,7 +153,8 @@ def ad_edit(request, ad_id):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
         ad_type = request.POST.get('ad_type', '').strip()
-        category = request.POST.get('category', '').strip()
+        expire_date_raw = request.POST.get('expire_date', '').strip()
+        expire_time_raw = request.POST.get('expire_time', '').strip()
         description = request.POST.get('description', '').strip()
         phone = request.POST.get('phone', '').strip()
         price_raw = request.POST.get('price', '').strip()
@@ -147,7 +163,8 @@ def ad_edit(request, ad_id):
         form_data = {
             'title': title,
             'ad_type': ad_type,
-            'category': category,
+            'expire_date': expire_date_raw,
+            'expire_time': expire_time_raw,
             'description': description,
             'phone': phone,
             'price': price_raw,
@@ -161,9 +178,19 @@ def ad_edit(request, ad_id):
         if ad_type and ad_type not in valid_types:
             errors['ad_type'] = 'Выберите тип объявления'
 
-        valid_categories = [choice[0] for choice in Ad.Category.choices]
-        if category and category not in valid_categories:
-            errors['category'] = 'Выберите категорию'
+        # Валидация срока действия объявления
+        expire_dt = None
+        if not expire_date_raw or not expire_time_raw:
+            errors['expire_date'] = 'Укажите дату и время окончания срока действия'
+        else:
+            try:
+                naive_dt = datetime.strptime(f"{expire_date_raw} {expire_time_raw}", "%Y-%m-%d %H:%M")
+                tz = timezone.get_current_timezone()
+                expire_dt = timezone.make_aware(naive_dt, tz)
+                if expire_dt <= timezone.now():
+                    errors['expire_date'] = 'Дата окончания должна быть в будущем.'
+            except (ValueError, TypeError):
+                errors['expire_date'] = 'Укажите корректную дату и время'
 
         if not description:
             errors['description'] = 'Укажите описание объявления'
@@ -202,8 +229,7 @@ def ad_edit(request, ad_id):
             ad.title = title
             if ad_type:
                 ad.ad_type = ad_type
-            if category:
-                ad.category = category
+            ad.expire_date = expire_dt
             ad.description = description
             ad.phone = phone
             ad.price = price
@@ -220,7 +246,6 @@ def ad_edit(request, ad_id):
 
     return render(request, 'ads/create.html', {
         'ad_types': Ad.AdType.choices,
-        'categories': Ad.Category.choices,
         'errors': errors,
         'form_data': form_data,
         'is_edit': True,
