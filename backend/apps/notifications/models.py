@@ -190,3 +190,38 @@ class PushSubscription(models.Model):
 
     def __str__(self):
         return f"Push subscription #{self.pk}"
+
+
+class NotificationPreference(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notification_preference",
+        verbose_name="Пользователь",
+    )
+    urgent_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Срочные оповещения",
+        help_text="Получать Web Push о срочных происшествиях аула",
+    )
+    official_enabled = models.BooleanField(
+        default=True,
+        verbose_name="Официальные оповещения",
+        help_text="Получать Web Push об официальных объявлениях аула",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата создания",
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Дата обновления",
+    )
+
+    class Meta:
+        verbose_name = "Настройки уведомлений"
+        verbose_name_plural = "Настройки уведомлений"
+
+    def __str__(self):
+        return f"Настройки уведомлений: {self.user}"
+

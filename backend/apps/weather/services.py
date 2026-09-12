@@ -95,7 +95,7 @@ def fetch_open_meteo_data(latitude: float, longitude: float, timeout_seconds: in
         f"latitude={latitude}&longitude={longitude}"
         f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m"
         f"&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,sunrise,sunset"
-        f"&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&forecast_days=7"
+        f"&temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm&timezone=auto&forecast_days=7"
     )
     req = urllib.request.Request(
         url,

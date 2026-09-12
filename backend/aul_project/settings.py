@@ -17,8 +17,11 @@ import sys
 import sys
 sys.path.insert(0, str(BASE_DIR / 'apps'))
 
-# Секретный ключ для разработки
-SECRET_KEY = 'django-insecure-aul-development-key-change-in-production'
+# Секретный ключ
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-aul-development-key-change-in-production'
+)
 
 # VAPID настройки для Web Push
 VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY')
@@ -26,9 +29,9 @@ VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY')
 VAPID_CLAIMS_EMAIL = os.getenv('VAPID_CLAIMS_EMAIL')
 
 # Режим отладки
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 # Настройка CSRF доверенных доменов для GitHub Codespaces
 CSRF_TRUSTED_ORIGINS = [
@@ -91,13 +94,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'aul_project.wsgi.application'
 
 
-# База данных (SQLite3 для разработки)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# База данных
+# Локально используется SQLite, на Railway — PostgreSQL через DATABASE_URL.
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Валидаторы паролей
@@ -158,3 +174,12 @@ WEATHER_LONGITUDE = float(os.getenv('WEATHER_LONGITUDE', '80.6067'))
 WEATHER_LOCATION_NAME = os.getenv('WEATHER_LOCATION_NAME', 'Кабанбай')
 WEATHER_CACHE_TIMEOUT = int(os.getenv('WEATHER_CACHE_TIMEOUT', '600'))  # 10 минут
 
+
+# Production-настройки для Railway
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Announcement, PushSubscription
+from .models import Announcement, NotificationPreference, PushSubscription
 from .push_service import send_push_notification
 
 
@@ -84,16 +84,15 @@ class AnnouncementAdmin(admin.ModelAdmin):
     @admin.action(description="✅ Одобрить и опубликовать (ACTIVE)")
     def approve_announcements(self, request, queryset):
         count = 0
-        for announcement in queryset:
-            if announcement.status != Announcement.Status.ACTIVE:
-                announcement.status = Announcement.Status.ACTIVE
-                announcement.save(update_fields=['status'])
-                count += 1
-                try:
-                    send_push_notification(announcement)
-                except Exception:
-                    pass
-        self.message_user(request, f"Опубликовано и разослано Push-уведомлений: {count}")
+        for item in queryset:
+            item.status = Announcement.Status.ACTIVE
+            item.save()
+            try:
+                send_push_notification(item)
+            except Exception:
+                pass
+            count += 1
+        self.message_user(request, f"Опубликовано объявлений: {count}")
 
     @admin.action(description="📦 Перенести в архив (ARCHIVED)")
     def archive_announcements(self, request, queryset):
@@ -106,14 +105,15 @@ class AnnouncementAdmin(admin.ModelAdmin):
         self.message_user(request, f"Отклонено объявлений: {count}")
 
 
+@admin.register(NotificationPreference)
+class NotificationPreferenceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'urgent_enabled', 'official_enabled', 'updated_at')
+    list_filter = ('urgent_enabled', 'official_enabled')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'user__phone')
+
+
 @admin.register(PushSubscription)
 class PushSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'endpoint_short', 'created_at', 'updated_at')
-    list_filter = ('created_at',)
-    search_fields = ('endpoint', 'user__username', 'user__first_name', 'user__last_name')
-    readonly_fields = ('endpoint', 'p256dh', 'auth', 'created_at', 'updated_at')
-
-    def endpoint_short(self, obj):
-        return obj.endpoint[:60] + '...' if len(obj.endpoint) > 60 else obj.endpoint
-    endpoint_short.short_description = "Endpoint"
+    list_display = ('id', 'user', 'created_at', 'updated_at')
+    search_fields = ('user__username', 'endpoint')
 

@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from apps.users.models import Role
-from .models import Announcement, PushSubscription
+from .models import Announcement, PushSubscription, NotificationPreference
 from .forms import UrgentNotificationForm, OfficialNotificationForm
 from .push_service import send_push_notification
 import json
@@ -83,8 +83,6 @@ def create_urgent_view(request):
             announcement.is_important = True  # Высокий приоритет
             announcement.publish_date = timezone.now()
             announcement.save()
-
-            # Отправка Web Push уведомления всем жителям аула
             try:
                 send_push_notification(announcement)
             except Exception:
@@ -146,14 +144,11 @@ def create_official_view(request):
 
             announcement.publish_date = timezone.now()
             announcement.save()
-
-            # Отправка Web Push уведомления только для сразу опубликованных (ACTIVE) оповещений
             if announcement.status == Announcement.Status.ACTIVE:
                 try:
                     send_push_notification(announcement)
                 except Exception:
                     pass
-
             return redirect('notifications:list')
         else:
             messages.error(request, 'Пожалуйста, проверьте введённые данные.')
@@ -243,4 +238,25 @@ def push_subscribe_view(request):
 def vapid_public_key_view(request):
     return JsonResponse({
         "publicKey": settings.VAPID_PUBLIC_KEY
+    })
+
+
+@login_required
+def notification_settings_view(request):
+    """
+    Страница настроек Web Push уведомлений.
+    Позволяет пользователю включить/выключить получение Push
+    для срочных и официальных оповещений аула.
+    """
+    preference, _ = NotificationPreference.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        preference.urgent_enabled = 'urgent_enabled' in request.POST
+        preference.official_enabled = 'official_enabled' in request.POST
+        preference.save()
+        messages.success(request, 'Настройки уведомлений сохранены')
+        return redirect('notifications:settings')
+
+    return render(request, 'notifications/settings.html', {
+        'preference': preference,
     })

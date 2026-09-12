@@ -68,9 +68,8 @@
 
             <!-- Right App Bar Actions (Notifications) -->
             <div class="flex items-center gap-2">
-                <a href="/notifications/" class="relative p-2 rounded-full text-[#111827] hover:bg-[#F8FAFC] active:bg-[#E5E7EB] transition focus:outline-none flex items-center justify-center" title="Уведомления">
+                <a href="{% url 'notifications:settings' %}" id="notifications-bell-btn" class="relative p-2 rounded-full text-[#111827] hover:bg-[#F8FAFC] active:bg-[#E5E7EB] transition focus:outline-none flex items-center justify-center" title="Настройки уведомлений">
                     <span class="material-symbols-rounded text-[28px]">notifications</span>
-                    <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
                 </a>
             </div>
         </div>

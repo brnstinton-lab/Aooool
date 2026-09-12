@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}AUL — Настройки уведомлений{% endblock %}
+
+{% block content %}
+<div x-data="{ 
+        toastMessage: {% if messages %}{% for message in messages %}'{{ message|escapejs }}'{% endfor %}{% else %}''{% endif %},
+        urgent: {{ preference.urgent_enabled|yesno:'true,false' }},
+        official: {{ preference.official_enabled|yesno:'true,false' }}
+     }"
+     x-init="if (toastMessage) setTimeout(() => toastMessage = '', 3500)"
+     class="space-y-4 max-w-lg mx-auto pb-6">
+
+    <!-- Toast Notification Banner -->
+    <div x-show="toastMessage" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-2"
+         id="toast-notification-banner"
+         class="fixed bottom-20 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-md z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-3.5 rounded-2xl shadow-xl flex items-center justify-between gap-3 border border-slate-700" 
+         style="display: none;">
+        <div class="flex items-center gap-2.5">
+            <span class="material-symbols-rounded text-emerald-400 text-lg shrink-0">check_circle</span>
+            <span x-text="toastMessage"></span>
+        </div>
+        <button type="button" @click="toastMessage = ''" class="text-slate-400 hover:text-white transition">
+            <span class="material-symbols-rounded text-base">close</span>
+        </button>
+    </div>
+
+    <!-- Header & Back Button -->
+    <div class="flex items-center gap-3">
+        <a href="javascript:history.back()" class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center hover:bg-slate-50 active:bg-slate-100 transition shadow-xs shrink-0" title="Назад">
+            <span class="material-symbols-rounded text-2xl">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-lg font-bold text-slate-900 leading-snug">Настройки уведомлений</h1>
+            <p class="text-xs text-slate-500">Выберите, какие уведомления вы хотите получать</p>
+        </div>
+    </div>
+
+    <!-- Notification Form -->
+    <form method="POST" action="{% url 'notifications:settings' %}" id="notification-settings-form" class="space-y-4 pt-1">
+        {% csrf_token %}
+
+        <div class="space-y-3">
+            <!-- 1. Urgent Notifications Card -->
+            <label class="block bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs cursor-pointer transition hover:border-red-200 focus-within:ring-2 focus-within:ring-red-500/20">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-rounded text-2xl">emergency</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-900 text-base">🚨 Срочные оповещения</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <div class="flex items-center shrink-0 pt-1">
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" 
+                                   name="urgent_enabled" 
+                                   id="id_urgent_enabled"
+                                   x-model="urgent"
+                                   class="sr-only peer">
+                            <div class="w-[52px] h-7 bg-slate-200 rounded-full transition-colors duration-200 ease-in-out peer-focus:outline-none peer-checked:bg-[#16A34A] after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-6 peer-checked:after:border-white"></div>
+                        </div>
+                    </div>
+                </div>
+            </label>
+
+            <!-- 2. Official Notifications Card -->
+            <label class="block bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs cursor-pointer transition hover:border-amber-200 focus-within:ring-2 focus-within:ring-amber-500/20">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-rounded text-2xl">campaign</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-900 text-base">📢 Официальные оповещения</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <div class="flex flex-col items-end gap-1 shrink-0 pt-1">
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" 
+                                   name="official_enabled" 
+                                   id="id_official_enabled"
+                                   x-model="official"
+                                   class="sr-only peer">
+                            <div class="w-[52px] h-7 bg-slate-200 rounded-full transition-colors duration-200 ease-in-out peer-focus:outline-none peer-checked:bg-[#16A34A] after:content-[''] after:absolute after:top-[2px] after:left-[3px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-6 peer-checked:after:border-white"></div>
+                        </div>
+                    </div>
+                </div>
+            </label>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+            <button type="submit" 
+                    id="save-notification-settings-btn"
+                    class="w-full py-3.5 px-4 rounded-2xl bg-[#16A34A] hover:bg-[#15803D] active:scale-[0.99] text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
+                <span class="material-symbols-rounded text-xl">check</span>
+                <span>Сохранить настройки</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
