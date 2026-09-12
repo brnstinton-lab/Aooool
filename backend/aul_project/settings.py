@@ -35,6 +35,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 # Настройка CSRF доверенных доменов для GitHub Codespaces
 CSRF_TRUSTED_ORIGINS = [
+    "https://aooool-production.up.railway.app",
     "https://verbose-space-spoon-jr6v9rxx4x53966-8000.app.github.dev",
     "https://localhost:8000",
     "http://localhost:8000",
