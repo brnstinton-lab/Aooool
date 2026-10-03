@@ -7,3 +7,4 @@ psycopg[binary]>=3.2.0
 gunicorn>=23.0.0
 dj-database-url>=2.2.0
 pywebpush>=2.0.0
+whitenoise==6.12.0
